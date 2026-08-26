@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
+export default function Timer() {
 const algorithms = {
   "U2 R' U2 L F' U2 L F R' D2 B2 U L2 U R2 B2 L2 D L2 D F2": "d1.png",
   "U' B L U2 L' F' L' B L' F' L2 D' F2 U R2 F2 D' L2 D2 F2": "d2.png",
@@ -63,85 +64,96 @@ const algorithms = {
   "U L U F U' F' L U B2 U' B2 L2 D' L2 F2 U L2 B2 R2 D2 B2": "w2.png",
 };
 
-const algKeys = Object.keys(algorithms);
-
-export default function Timer() {
   const [algo, setAlgo] = useState("");
   const [mounted, setMounted] = useState(false);
-  const [time, setTime] = useState("0.00");
-  const [isRunning, setIsRunning] = useState(false);
 
+  const [time, setTime] = useState("0.00");
   const [currentTime, setCurrentTime] = useState(null);
   const [bestTime, setBestTime] = useState(null);
   const [solves, setSolves] = useState([]);
 
   const startTimeRef = useRef(null);
-  const animFrameRef = useRef(null);
-  const isRunningRef = useRef(false);
+  const intervalRef = useRef(null);
+  const currentTimeRef = useRef(0);
 
-  const changeAlgo = useCallback(() => {
-    const randomKey = algKeys[Math.floor(Math.random() * algKeys.length)];
-    setAlgo(randomKey);
-  }, []);
+  // Generate scramble
+  const changeAlgo = () => {
+    const algorithmKeys = Object.keys(algorithms);
+    const randomNum = Math.floor(Math.random() * algorithmKeys.length);
+
+    setAlgo(algorithmKeys[randomNum]);
+  };
 
   useEffect(() => {
     setMounted(true);
     changeAlgo();
-  }, [changeAlgo]);
-
-  const updateLoop = useCallback(() => {
-    if (!startTimeRef.current) return;
-    const elapsed = (performance.now() - startTimeRef.current) / 1000;
-    setTime(elapsed.toFixed(2));
-    animFrameRef.current = requestAnimationFrame(updateLoop);
   }, []);
 
-  const startTimer = useCallback(() => {
-    startTimeRef.current = performance.now();
-    isRunningRef.current = true;
-    setIsRunning(true);
-    animFrameRef.current = requestAnimationFrame(updateLoop);
-  }, [updateLoop]);
-
-  const stopTimer = useCallback(() => {
-    if (!startTimeRef.current) return;
-    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-
-    const finalTime = (performance.now() - startTimeRef.current) / 1000;
-    isRunningRef.current = false;
-    setIsRunning(false);
-    startTimeRef.current = null;
-
-    setTime(finalTime.toFixed(2));
-    setCurrentTime(finalTime);
-    setSolves((prev) => [...prev, finalTime]);
-
-    setBestTime((prev) =>
-      prev === null || finalTime < prev ? finalTime : prev,
-    );
-    changeAlgo();
-  }, [changeAlgo]);
-
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyUp = (e) => {
       if (e.code !== "Space") return;
-      e.preventDefault();
-      if (e.repeat) return;
 
-      if (isRunningRef.current) {
-        stopTimer();
-      } else {
-        startTimer();
+      e.preventDefault();
+
+      // START
+      if (startTimeRef.current === null) {
+        const start = Date.now();
+
+        startTimeRef.current = start;
+
+        intervalRef.current = setInterval(() => {
+          const elapsed = (Date.now() - start) / 1000;
+
+          currentTimeRef.current = elapsed;
+
+          setTime(elapsed.toFixed(2));
+        }, 50);
+
+        return;
+      }
+
+      // STOP
+      clearInterval(intervalRef.current);
+
+      const finalTime = currentTimeRef.current;
+
+      if (finalTime <= 0) return;
+
+      setCurrentTime(finalTime);
+
+      setSolves((prev) => [...prev, finalTime]);
+
+      setBestTime((prev) => {
+        if (prev === null || finalTime < prev) {
+          return finalTime;
+        }
+
+        return prev;
+      });
+
+      // Reset timer
+      startTimeRef.current = null;
+      intervalRef.current = null;
+      currentTimeRef.current = 0;
+
+      setTime(finalTime.toFixed(2));
+
+      // New scramble
+      changeAlgo();
+    };
+
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keyup", handleKeyUp);
+
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
       }
     };
+  }, []);
 
-    window.addEventListener("keyup", handleKeyDown);
-    return () => {
-      window.removeEventListener("keyup", handleKeyDown);
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    };
-  }, [startTimer, stopTimer]);
-
+  // Get image based on current algorithm
   const currentImage =
     algo && algorithms[algo] ? `/oll/${algorithms[algo]}` : null;
 
@@ -153,22 +165,20 @@ export default function Timer() {
 
         <div className="flex items-center justify-between">
           <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-emerald-400">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
             Scramble
           </span>
+
           <span className="text-[11px] font-medium tracking-wider text-zinc-500">
-            3x3 OLL
+            3x3 WCA
           </span>
         </div>
 
-        {/* Scramble Text + Dynamic Case Image */}
         <div className="mt-4 flex flex-col items-center gap-4 rounded-xl border border-zinc-800 bg-zinc-950/40 p-4 sm:p-5 md:flex-row md:justify-between md:gap-6">
-          {/* Scramble */}
           <p className="min-w-0 flex-1 break-words text-center font-mono text-base font-bold leading-relaxed tracking-wide text-zinc-100 selection:bg-emerald-500/30 selection:text-emerald-200 sm:text-lg md:text-left md:text-xl">
             {mounted ? algo : "Generating scramble..."}
           </p>
 
-          {/* Algorithm Image */}
           {mounted && currentImage && (
             <div className="flex shrink-0 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950/80 p-2 shadow-inner transition-transform duration-200 hover:scale-105">
               <Image
@@ -188,26 +198,14 @@ export default function Timer() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Timer Hero Card */}
         <div className="group relative flex min-h-[300px] items-center justify-center rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-6 shadow-2xl backdrop-blur-md transition-all lg:col-span-2">
-          <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-sky-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none" />
+          <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-sky-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
 
           <div className="relative text-center">
-            <span
-              className={`inline-block rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-widest border transition-all ${
-                isRunning
-                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                  : "border-zinc-700/50 bg-zinc-800/60 text-zinc-400"
-              }`}
-            >
-              {isRunning ? "Solving..." : "Ready"}
+            <span className="inline-block rounded-full border border-zinc-700/50 bg-zinc-800/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+              Ready
             </span>
 
-            <p
-              className={`my-4 font-mono text-7xl font-black tracking-tight tabular-nums transition-colors sm:text-8xl md:text-9xl ${
-                isRunning
-                  ? "text-emerald-400 drop-shadow-[0_0_25px_rgba(52,211,153,0.3)]"
-                  : "text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.15)]"
-              }`}
-            >
+            <p className="my-4 font-mono text-7xl font-black tracking-tight text-white tabular-nums drop-shadow-[0_0_25px_rgba(255,255,255,0.15)] sm:text-8xl md:text-9xl">
               {time}
             </p>
 
@@ -215,7 +213,8 @@ export default function Timer() {
               <kbd className="rounded bg-zinc-700/70 px-1.5 py-0.5 font-mono text-[10px] text-zinc-200 shadow">
                 SPACE
               </kbd>
-              <span>{isRunning ? "Press to stop" : "Press to start"}</span>
+
+              <span>Hold & release to solve</span>
             </div>
           </div>
         </div>
@@ -227,6 +226,7 @@ export default function Timer() {
               <h3 className="text-base font-bold uppercase tracking-wider text-zinc-200">
                 Session Stats
               </h3>
+
               <button
                 onClick={() => {
                   setBestTime(null);
@@ -241,12 +241,12 @@ export default function Timer() {
               </button>
             </div>
 
-            {/* Metric Badges */}
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-3 text-center">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
                   Current
                 </span>
+
                 <p className="mt-1 font-mono text-xl font-extrabold text-sky-400">
                   {currentTime !== null ? currentTime.toFixed(2) : "--"}
                 </p>
@@ -256,6 +256,7 @@ export default function Timer() {
                 <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">
                   PB (Best)
                 </span>
+
                 <p className="mt-1 font-mono text-xl font-extrabold text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.3)]">
                   {bestTime !== null ? bestTime.toFixed(2) : "--"}
                 </p>
@@ -267,6 +268,7 @@ export default function Timer() {
             <span className="text-xs font-semibold text-zinc-400">
               Total Solves
             </span>
+
             <span className="rounded-md bg-zinc-800 px-2 py-0.5 font-mono text-sm font-bold text-zinc-200">
               {solves.length}
             </span>
@@ -279,6 +281,7 @@ export default function Timer() {
             <h3 className="text-base font-bold uppercase tracking-wider text-zinc-200">
               Solve History
             </h3>
+
             <span className="text-xs font-medium text-zinc-500">
               {solves.length} recorded
             </span>
@@ -301,9 +304,12 @@ export default function Timer() {
                     <span className="font-sans text-[10px] text-zinc-500">
                       #{index + 1}
                     </span>
+
                     <span
                       className={`font-bold ${
-                        solve === bestTime ? "text-amber-400" : "text-zinc-300"
+                        solve === bestTime
+                          ? "text-amber-400"
+                          : "text-zinc-300"
                       }`}
                     >
                       {solve.toFixed(2)}s
