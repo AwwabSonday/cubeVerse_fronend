@@ -71,16 +71,20 @@ const algorithms = {
   const [currentTime, setCurrentTime] = useState(null);
   const [bestTime, setBestTime] = useState(null);
   const [solves, setSolves] = useState([]);
+  const [cases, setCases] = useState([])
 
   const startTimeRef = useRef(null);
   const intervalRef = useRef(null);
   const currentTimeRef = useRef(0);
-
+    useEffect(()=>{
+    const savedData = localStorage.getItem("selectedCases")
+    const parsedData = JSON.parse(savedData)
+    parsedData ? setCases(parsedData) : setCases(algorithms)
+  },[])
   // Generate scramble
   const changeAlgo = () => {
     const algorithmKeys = Object.keys(algorithms);
     const randomNum = Math.floor(Math.random() * algorithmKeys.length);
-
     setAlgo(algorithmKeys[randomNum]);
   };
 
