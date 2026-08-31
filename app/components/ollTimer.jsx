@@ -64,6 +64,8 @@ const algorithms = {
   "U L U F U' F' L U B2 U' B2 L2 D' L2 F2 U L2 B2 R2 D2 B2": "w2.png",
 };
 
+  
+
   const [algo, setAlgo] = useState("");
   const [mounted, setMounted] = useState(false);
 
@@ -90,6 +92,7 @@ const algorithms = {
     const algorithmKeys = Object.keys(algorithms)
     const randomNum = Math.floor(Math.random() * cases.length);
     const caseAlgo = cases[randomNum]
+    console.log(caseAlgo)
     setAlgo(algorithmKeys[caseAlgo-1])
   };
 

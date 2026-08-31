@@ -1,8 +1,28 @@
+'use client'
 import Link from 'next/link';
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 
 export default function page() {
-  return (
+  const [selectrow, setSelectrow] = useState([])
+  const [loaded, setLoaded] = useState(false)
+  
+  useEffect(() => {
+    const savedData = localStorage.getItem("PllSelectedCases")
+  
+    if (savedData) {
+        const parsedData = JSON.parse(savedData)
+        setSelectrow(parsedData)
+    }
+  
+    setLoaded(true)
+  }, [])
+  
+  useEffect(() => {
+    if (loaded) {
+      localStorage.setItem("PllelectedCases", JSON.stringify(selectrow))
+    }
+  }, [selectrow, loaded])
+  return (  
     <>
   <main className="min-h-screen bg-slate-100 px-4 py-10">
     <div className="mx-auto max-w-7xl">
@@ -192,10 +212,19 @@ export default function page() {
                   "Adjacent Corner Swap",
                 ],
               ].map(([name, image, algorithm, group]) => (
-                <tr
-                  key={name}
-                  className="border-b border-slate-200 transition hover:bg-slate-50"
-                >
+                    <tr
+                      key={name}
+                      onClick={() => {
+                        console.log(selectrow)
+                        setSelectrow((prev) =>
+                          prev.includes(name)
+                            ? prev.filter((id) => id !== name)
+                            : [...prev, name]
+                        );
+
+                      }}
+                      className={`border-b border-slate-200 transition ${selectrow.includes(name) ? "bg-yellow-300" : null}`}
+                    >
                   {/* Name */}
                   <td className="px-5 py-4 text-center font-bold text-slate-700">
                     {name}
