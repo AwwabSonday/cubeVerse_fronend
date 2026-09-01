@@ -19,7 +19,7 @@ export default function page() {
   
   useEffect(() => {
     if (loaded) {
-      localStorage.setItem("PllelectedCases", JSON.stringify(selectrow))
+      localStorage.setItem("PllSelectedCases", JSON.stringify(selectrow))
     }
   }, [selectrow, loaded])
   return (  

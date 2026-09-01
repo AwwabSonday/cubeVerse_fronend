@@ -65,6 +65,7 @@ export default function Timer() {
     return parsedData ? parsedData : Object.keys(algorithms)
   })
 
+
   // These values should NOT cause re-renders
   const startTimeRef = useRef(null);
   const intervalRef = useRef(null);
@@ -75,8 +76,7 @@ export default function Timer() {
     const algorithmKeys = Object.keys(algorithms)
     const randomNum = Math.floor(Math.random() * cases.length);
     const caseAlgo = cases[randomNum]
-    setAlgo(algorithmKeys[caseAlgo])
-    console.log(caseAlgo)
+    setAlgo(algorithmKeys[caseMap[caseAlgo]])
   };
 
 
