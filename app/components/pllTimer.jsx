@@ -76,7 +76,14 @@ export default function Timer() {
     const algorithmKeys = Object.keys(algorithms)
     const randomNum = Math.floor(Math.random() * cases.length);
     const caseAlgo = cases[randomNum]
-    setAlgo(algorithmKeys[caseMap[caseAlgo]])
+    console.log("caseAlgo", caseAlgo)
+    if(!caseAlgo){
+      const randomNum = Math.floor(Math.random() * algorithmKeys.length);
+      setAlgo(algorithmKeys[randomNum])
+    }
+    else{
+      setAlgo(algorithmKeys[caseMap[caseAlgo]])
+    }
   };
 
 

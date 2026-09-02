@@ -87,13 +87,18 @@ const algorithms = {
   //   parsedData ? setCases(parsedData) : setCases(Object.keys(algorithms))
   // },[])
 
-  // Generate scramble
   const changeAlgo = () => {
     const algorithmKeys = Object.keys(algorithms)
     const randomNum = Math.floor(Math.random() * cases.length);
     const caseAlgo = cases[randomNum]
-    console.log(caseAlgo)
+    // console.log("caseAlgo", caseAlgo)
+    if(!caseAlgo){
+      const randomNum = Math.floor(Math.random() * algorithmKeys.length);
+      setAlgo(algorithmKeys[randomNum])
+      console.log(algorithmKeys[randomNum])
+    }else{
     setAlgo(algorithmKeys[caseAlgo-1])
+    }
   };
 
   useEffect(() => {
