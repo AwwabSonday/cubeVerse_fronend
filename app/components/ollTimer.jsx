@@ -4,67 +4,66 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 export default function Timer() {
-const algorithms = {
-  "U2 R' U2 L F' U2 L F R' D2 B2 U L2 U R2 B2 L2 D L2 D F2": "d1.png",
-  "U' B L U2 L' F' L' B L' F' L2 D' F2 U R2 F2 D' L2 D2 F2": "d2.png",
-  "U' B L2 F' L' U2 F L' B' U F2 U B2 D B2 R2 B2 D2 L2 D B2": "d3.png",
-  "U2 R' F2 L F U2 L' F R U' L2 U' R2 D' R2 B2 R2 D2 F2 D' R2": "d4.png",
-  "U L R' F' L' B' R2 B R' U2 R2 U F2 U2 R2 U' F2 R2 U F2": "d5.png",
-  "U B' R B' R2 U' F R' F U' L2 D' L2 U B2 F2 U R2 B2 U' R2": "d6.png",
-  "U F R B U B' U R' U2 F U F2 U L2 D2 B2 D B2 D L2": "d7.png",
-  "U L R' F2 U2 F' L R U2 B2 D' B2 D R2 D' F2 U L2 U' R2": "d8.png",
-  "U' L' U' B' U B L' U2 B2 U F2 U' B2 L2 U' L2 U2 F2 U L2": "as1.png",
-  "U L2 F' L U2 L' U2 L' F L2 R2 B2 U B2 U' B2 R2 U2 F2 L2 F2": "as2.png",
-  "U' R' U' F' U F R F2 U2 R2 B2 L2 D' L2 B2 R2 U F2": "as3.png",
-  "U' B2 L2 B2 F' R' F2 R F' R2 U' F2 R2 U' B2 D' B2 U' R2 U' R2": "as4.png",
-  "U' B U' L' B' U2 F2 D R' D B2 L2 B2 L2 D L2 D B2 L2 B2 F2": "blb1.png",
-  "B L' B' U B2 L D L' D' B2 U2 L2 U' L2 U' L2 U2 L2": "blb2.png",
-  "U L B L2 B' L U D' R2 D L2 D' R2 U' D L2": "c1.png",
-  "U2 B2 U L' D B D' B' L U L2 F2 U' B2 R2 B2 F2 U2 D' B2": "c2.png",
-  "U' F B L F2 L F B D2 R2 U L2 U' F2 D B2 D R2 D' L2 F2": "co1.png",
-  "U2 B R D L2 B D2 R U' F U F2 U L2 D B2 D' L2 F2 D B2": "co2.png",
-  "U L' U' B2 L B2 L2 U L B2 U F2 D2 L2 U' R2 U' B2 L2 D' R2": "cr1.png",
-  "U' R2 F D' B' R2 B' D F D' R2 D F2 U' B2 R2 B2 D B2 D' L2": "cr2.png",
-  "U2 B R2 B' L2 B R2 B D2 R2 D2 B2 U B2 D' R2 D B2 U2 L2": "cr3.png",
-  "L2 U L D' R2 D L D' L2 R2 D F2 U' F2 L2": "cr4.png",
-  "U2 F2 U R U' L2 U R U' F2 R2 B2 U' F2 U' L2 U L2 U' R2 D'": "cr5.png",
-  "U R U R2 U' R2 U R B2 U2 B2 R2 B2 U F2 U B2 U' F2 U R2": "cr6.png",
-  "U' B U2 B' U' B U' B U' B2 D B2 D' R2 U R2 B2": "cr7.png",
-  "U2 L U2 L' B' U B' R' U' R U' L2 U B2 U B2 L2 D' B2 D": "fs1.png",
-  "U R' F' L F' L' F2 R F2 U L2 U' L2 F2 D' L2 D L2": "fs2.png",
-  "U F R' F' U2 L' B2 L U' F2 U' R2 U' L2 R2 D L2 U F2": "fs3.png",
-  "U' R' L U2 L' U' F' U F R B2 R2 U B2 U R2 B2 U2 R2 B2": "fs4.png",
-  "U L F' L' R2 F R F2 R F' U' F2 R2 D' L2 U L2 F2 D F2": "i1.png",
-  "U2 L' U' B U L' D' B U' B' U' L2 F2 U' R2 F2 U2 L2 B2 U L2": "i2.png",
-  "U B L' B L' U D2 R F2 R' D2 L2 U' L2 B2 U R2 D' F2 D R2": "i3.png",
-  "U' R U R' U' B2 L2 D' B R' B F2 R2 U' B2 U L2 U' B2 F2 R2": "i4.png",
-  "F' L2 D L' D' L' F U' B2 U B2 U B2 U B2 U' B2 U B2": "k1.png",
-  "U' L F' L B L2 B D2 F U F2 D' F2 L2 F2 D2 R2 D F2": "k2.png",
-  "R2 F D R U R' U' D' F U' F2 R2 U' B2 D' F2 D F2 B2": "k3.png",
-  "U2 F R B' R B R2 F' U' F2 L2 R2 U R2 U' R2 D R2 D' L2 F2": "k4.png",
-  "U2 B L R2 U L' U' R2 B U R2 U R2 U' R2 B2 R2 D B2 D' R2": "p1.png",
-  "U R' U' R' U R B' R B U' B2 R2 F2 D B2 L2 B2 D' B2 F2": "p2.png",
-  "U' B2 R D' B' D B R U F2 R2 U2 B2 U' R2 F2 D F2 R2 D L2": "p3.png",
-  "U R2 F2 R' B U B' U' R B2 D B2 D' F2 D B2 D' B2 R2": "p4.png",
-  "U' L D F R2 D2 L B2 D' B' D' R2 F2 U' R2 U R2 D' F2 L2": "sm1.png",
-  "U2 F U F R2 U D2 L B' L B2 L2 D' R2 D L2 D L2 F2 D F2": "sm2.png",
-  "U2 F D B2 D2 R' D R F D L2 U L2 U' F2 D F2 B2 D' F2": "sm3.png",
-  "U' R B2 R2 F R B2 R2 F L2 U' F2 R2 B2 D' B2": "sm4.png",
-  "U L2 B L F2 B' L' F2 L U2 R2 D' L2 D R2 U2 L2 U F2 U' L2": "sm5.png",
-  "U' L F2 R2 F L B2 L2 F L2 F2 U F2 U' B2 U L2 B2 D B2": "sm6.png",
-  "F2 R' F L F L' F2 R U' L2 R2 D L2 U' F2 L2 D' B2 D' L2": "slb1.png",
-  "U' L U' L2 U F' L2 F U' L U' F2 B2 D R2 D2 R2 D F2 B2": "slb2.png",
-  "B L2 B2 F R' F R' B U R2 U' L2 B2 F2 D L2 D' R2 B2": "slb3.png",
-  "U2 R B' L2 B U' L2 U B' R' U B2 D L2 D' B2 L2 U' B2": "slb4.png",
-  "U' R2 L F' R2 F R2 F' L D F2 D' B2 D F2 D' R2 B2 L2 F2": "sq1.png",
-  "U2 R2 F R' B' R' B R2 F U' R2 U' R2 U F2 U R2": "sq2.png",
-  "U2 R U B U' B' R U2 B2 U2 R2 U B2 U B2 L2 D F2 D' L2": "t1.png",
-  "F R U R U R2 U2 F' U' F2 R2 D R2 D2 F2 U' F2 D F2": "t2.png",
-  "U B2 U' R L2 F R2 F' R U B2 D' R2 U' B2 D' F2 D2 B2 R2": "w1.png",
-  "U L U F U' F' L U B2 U' B2 L2 D' L2 F2 U L2 B2 R2 D2 B2": "w2.png",
-};
+  const algorithms = {
+    "U2 R' U2 L F' U2 L F R' D2 B2 U L2 U R2 B2 L2 D L2 D F2": "d1.png",
+    "U' B L U2 L' F' L' B L' F' L2 D' F2 U R2 F2 D' L2 D2 F2": "d2.png",
+    "U' B L2 F' L' U2 F L' B' U F2 U B2 D B2 R2 B2 D2 L2 D B2": "d3.png",
+    "U2 R' F2 L F U2 L' F R U' L2 U' R2 D' R2 B2 R2 D2 F2 D' R2": "d4.png",
+    "U L R' F' L' B' R2 B R' U2 R2 U F2 U2 R2 U' F2 R2 U F2": "d5.png",
+    "U B' R B' R2 U' F R' F U' L2 D' L2 U B2 F2 U R2 B2 U' R2": "d6.png",
+    "U F R B U B' U R' U2 F U F2 U L2 D2 B2 D B2 D L2": "d7.png",
+    "U L R' F2 U2 F' L R U2 B2 D' B2 D R2 D' F2 U L2 U' R2": "d8.png",
+    "U' L' U' B' U B L' U2 B2 U F2 U' B2 L2 U' L2 U2 F2 U L2": "as1.png",
+    "U L2 F' L U2 L' U2 L' F L2 R2 B2 U B2 U' B2 R2 U2 F2 L2 F2": "as2.png",
+    "U' R' U' F' U F R F2 U2 R2 B2 L2 D' L2 B2 R2 U F2": "as3.png",
+    "U' B2 L2 B2 F' R' F2 R F' R2 U' F2 R2 U' B2 D' B2 U' R2 U' R2": "as4.png",
+    "U' B U' L' B' U2 F2 D R' D B2 L2 B2 L2 D L2 D B2 L2 B2 F2": "blb1.png",
+    "B L' B' U B2 L D L' D' B2 U2 L2 U' L2 U' L2 U2 L2": "blb2.png",
+    "U L B L2 B' L U D' R2 D L2 D' R2 U' D L2": "c1.png",
+    "U2 B2 U L' D B D' B' L U L2 F2 U' B2 R2 B2 F2 U2 D' B2": "c2.png",
+    "U' F B L F2 L F B D2 R2 U L2 U' F2 D B2 D R2 D' L2 F2": "co1.png",
+    "U2 B R D L2 B D2 R U' F U F2 U L2 D B2 D' L2 F2 D B2": "co2.png",
+    "U L' U' B2 L B2 L2 U L B2 U F2 D2 L2 U' R2 U' B2 L2 D' R2": "cr1.png",
+    "U' R2 F D' B' R2 B' D F D' R2 D F2 U' B2 R2 B2 D B2 D' L2": "cr2.png",
+    "U2 B R2 B' L2 B R2 B D2 R2 D2 B2 U B2 D' R2 D B2 U2 L2": "cr3.png",
+    "L2 U L D' R2 D L D' L2 R2 D F2 U' F2 L2": "cr4.png",
+    "U2 F2 U R U' L2 U R U' F2 R2 B2 U' F2 U' L2 U L2 U' R2 D'": "cr5.png",
+    "U R U R2 U' R2 U R B2 U2 B2 R2 B2 U F2 U B2 U' F2 U R2": "cr6.png",
+    "U' B U2 B' U' B U' B U' B2 D B2 D' R2 U R2 B2": "cr7.png",
+    "U2 L U2 L' B' U B' R' U' R U' L2 U B2 U B2 L2 D' B2 D": "fs1.png",
+    "U R' F' L F' L' F2 R F2 U L2 U' L2 F2 D' L2 D L2": "fs2.png",
+    "U F R' F' U2 L' B2 L U' F2 U' R2 U' L2 R2 D L2 U F2": "fs3.png",
+    "U' R' L U2 L' U' F' U F R B2 R2 U B2 U R2 B2 U2 R2 B2": "fs4.png",
+    "U L F' L' R2 F R F2 R F' U' F2 R2 D' L2 U L2 F2 D F2": "i1.png",
+    "U2 L' U' B U L' D' B U' B' U' L2 F2 U' R2 F2 U2 L2 B2 U L2": "i2.png",
+    "U B L' B L' U D2 R F2 R' D2 L2 U' L2 B2 U R2 D' F2 D R2": "i3.png",
+    "U' R U R' U' B2 L2 D' B R' B F2 R2 U' B2 U L2 U' B2 F2 R2": "i4.png",
+    "F' L2 D L' D' L' F U' B2 U B2 U B2 U B2 U' B2 U B2": "k1.png",
+    "U' L F' L B L2 B D2 F U F2 D' F2 L2 F2 D2 R2 D F2": "k2.png",
+    "R2 F D R U R' U' D' F U' F2 R2 U' B2 D' F2 D F2 B2": "k3.png",
+    "U2 F R B' R B R2 F' U' F2 L2 R2 U R2 U' R2 D R2 D' L2 F2": "k4.png",
+    "U2 B L R2 U L' U' R2 B U R2 U R2 U' R2 B2 R2 D B2 D' R2": "p1.png",
+    "U R' U' R' U R B' R B U' B2 R2 F2 D B2 L2 B2 D' B2 F2": "p2.png",
+    "U' B2 R D' B' D B R U F2 R2 U2 B2 U' R2 F2 D F2 R2 D L2": "p3.png",
+    "U R2 F2 R' B U B' U' R B2 D B2 D' F2 D B2 D' B2 R2": "p4.png",
+    "U' L D F R2 D2 L B2 D' B' D' R2 F2 U' R2 U R2 D' F2 L2": "sm1.png",
+    "U2 F U F R2 U D2 L B' L B2 L2 D' R2 D L2 D L2 F2 D F2": "sm2.png",
+    "U2 F D B2 D2 R' D R F D L2 U L2 U' F2 D F2 B2 D' F2": "sm3.png",
+    "U' R B2 R2 F R B2 R2 F L2 U' F2 R2 B2 D' B2": "sm4.png",
+    "U L2 B L F2 B' L' F2 L U2 R2 D' L2 D R2 U2 L2 U F2 U' L2": "sm5.png",
+    "U' L F2 R2 F L B2 L2 F L2 F2 U F2 U' B2 U L2 B2 D B2": "sm6.png",
+    "F2 R' F L F L' F2 R U' L2 R2 D L2 U' F2 L2 D' B2 D' L2": "slb1.png",
+    "U' L U' L2 U F' L2 F U' L U' F2 B2 D R2 D2 R2 D F2 B2": "slb2.png",
+    "B L2 B2 F R' F R' B U R2 U' L2 B2 F2 D L2 D' R2 B2": "slb3.png",
+    "U2 R B' L2 B U' L2 U B' R' U B2 D L2 D' B2 L2 U' B2": "slb4.png",
+    "U' R2 L F' R2 F R2 F' L D F2 D' B2 D F2 D' R2 B2 L2 F2": "sq1.png",
+    "U2 R2 F R' B' R' B R2 F U' R2 U' R2 U F2 U R2": "sq2.png",
+    "U2 R U B U' B' R U2 B2 U2 R2 U B2 U B2 L2 D F2 D' L2": "t1.png",
+    "F R U R U R2 U2 F' U' F2 R2 D R2 D2 F2 U' F2 D F2": "t2.png",
+    "U B2 U' R L2 F R2 F' R U B2 D' R2 U' B2 D' F2 D2 B2 R2": "w1.png",
+    "U L U F U' F' L U B2 U' B2 L2 D' L2 F2 U L2 B2 R2 D2 B2": "w2.png",
+  };
 
-  
 
   const [algo, setAlgo] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -73,7 +72,7 @@ const algorithms = {
   const [currentTime, setCurrentTime] = useState(null);
   const [bestTime, setBestTime] = useState(null);
   const [solves, setSolves] = useState([]);
-  const [cases, setCases] = useState(()=>{
+  const [cases, setCases] = useState(() => {
     const savedData = localStorage.getItem("selectedCases")
     const parsedData = JSON.parse(savedData)
     return parsedData ? parsedData : Object.keys(algorithms)
@@ -91,13 +90,11 @@ const algorithms = {
     const algorithmKeys = Object.keys(algorithms)
     const randomNum = Math.floor(Math.random() * cases.length);
     const caseAlgo = cases[randomNum]
-    // console.log("caseAlgo", caseAlgo)
-    if(!caseAlgo){
+    if (!caseAlgo) {
       const randomNum = Math.floor(Math.random() * algorithmKeys.length);
       setAlgo(algorithmKeys[randomNum])
-      console.log(algorithmKeys[randomNum])
-    }else{
-    setAlgo(algorithmKeys[caseAlgo-1])
+    } else {
+      setAlgo(algorithmKeys[caseAlgo - 1])
     }
   };
 
@@ -109,7 +106,6 @@ const algorithms = {
   useEffect(() => {
     const handleKeyUp = (e) => {
       if (e.code !== "Space") return;
-
       e.preventDefault();
 
       // START
@@ -129,7 +125,6 @@ const algorithms = {
         return;
       }
 
-      // STOP
       clearInterval(intervalRef.current);
 
       const finalTime = currentTimeRef.current;
@@ -160,7 +155,6 @@ const algorithms = {
     };
 
     window.addEventListener("keyup", handleKeyUp);
-
     return () => {
       window.removeEventListener("keyup", handleKeyUp);
 
@@ -176,9 +170,12 @@ const algorithms = {
 
   return (
     <>
+      <div className="mb-4 text-center text-sm font-medium text-zinc-400">
+        Case selected : {cases.length}
+      </div>
       {/* Scramble Display */}
       <div className="relative mb-6 overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-5 shadow-2xl backdrop-blur-md transition-all hover:border-zinc-700/80 sm:p-6">
-        <div className="absolute top-0 left-0 h-[2px] w-full bg-gradient-to-r from-emerald-500 via-sky-500 to-amber-500" />
+        <div className="absolute top-0 left-0 h-0.5 w-full bg-linear-to-r from-emerald-500 via-sky-500 to-amber-500" />
 
         <div className="flex items-center justify-between">
           <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-emerald-400">
@@ -321,13 +318,11 @@ const algorithms = {
                     <span className="font-sans text-[10px] text-zinc-500">
                       #{index + 1}
                     </span>
-
                     <span
-                      className={`font-bold ${
-                        solve === bestTime
+                      className={`font-bold ${solve === bestTime
                           ? "text-amber-400"
                           : "text-zinc-300"
-                      }`}
+                        }`}
                     >
                       {solve.toFixed(2)}s
                     </span>

@@ -77,11 +77,11 @@ export default function Timer() {
     const randomNum = Math.floor(Math.random() * cases.length);
     const caseAlgo = cases[randomNum]
     console.log("caseAlgo", caseAlgo)
-    if(!caseAlgo){
+    if (!caseAlgo) {
       const randomNum = Math.floor(Math.random() * algorithmKeys.length);
       setAlgo(algorithmKeys[randomNum])
     }
-    else{
+    else {
       setAlgo(algorithmKeys[caseMap[caseAlgo]])
     }
   };
@@ -165,7 +165,9 @@ export default function Timer() {
     algo && algorithms[algo] ? `/pll/${algorithms[algo]}` : null;
   return (
     <>
-      {/* Scramble Display */}
+    <div className="mb-4 text-center text-sm font-medium text-zinc-400">
+      Case selected: {cases.length}
+    </div>
       <div className="relative mb-6 overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-5 shadow-2xl backdrop-blur-md transition-all hover:border-zinc-700/80 sm:p-6">
         <div className="absolute top-0 left-0 h-[2px] w-full bg-gradient-to-r from-emerald-500 via-sky-500 to-amber-500" />
         <div className="flex items-center justify-between">
