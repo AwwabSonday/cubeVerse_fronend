@@ -1,1 +1,24 @@
 @import "tailwindcss";
+
+/* Palette: the six faces of a cube on warm paper, ink for text and buttons */
+@theme {
+  --color-paper: #f6f1e7;
+  --color-ink: #1b1a17;
+  --color-muted: #5c574d;
+  --color-cube-red: #d7392f;
+  --color-cube-orange: #f08a24;
+  --color-cube-yellow: #f2c230;
+  --color-cube-green: #2e9e5b;
+  --color-cube-blue: #2f6fb5;
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-ink);
+  outline-offset: 3px;
+}

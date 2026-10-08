@@ -1,6 +1,6 @@
 import Link from "next/link";
 import React from "react";
-import Image from "next/image";
+import Navbar from "../components/Navbar";
 function MoveGrid({ moves, small = false }) {
   return (
     <div
@@ -13,7 +13,7 @@ function MoveGrid({ moves, small = false }) {
       {moves.map(([image, move]) => (
         <div
           key={move}
-          className="group overflow-hidden rounded-xl bg-white shadow-md transition hover:-translate-y-1 hover:shadow-xl"
+          className="group overflow-hidden rounded-xl border-2 border-ink bg-white transition hover:-translate-y-1"
         >
           <div
             className={`${
@@ -22,7 +22,7 @@ function MoveGrid({ moves, small = false }) {
             style={{ backgroundImage: `url("/${image}")` }}
           />
 
-          <p className="border-t border-slate-100 py-3 text-center text-xl font-bold text-slate-700">
+          <p className="border-t-2 border-ink py-3 text-center text-xl font-bold">
             {move}
           </p>
         </div>
@@ -35,17 +35,17 @@ function Section({ title, description, moves, small = false }) {
   return (
     <section className="mt-12">
       <div className="mb-8 flex items-center gap-4">
-        <div className="h-px flex-1 bg-slate-300" />
+        <div className="h-0.5 flex-1 bg-ink" />
 
-        <h2 className="text-2xl font-bold text-slate-800 sm:text-3xl">
+        <h2 className="text-2xl font-bold sm:text-3xl">
           {title}
         </h2>
 
-        <div className="h-px flex-1 bg-slate-300" />
+        <div className="h-0.5 flex-1 bg-ink" />
       </div>
 
-      <div className="mb-6 rounded-xl bg-white p-5 shadow-sm">
-        <p className="leading-7 text-slate-600">{description}</p>
+      <div className="mb-6 rounded-xl border-2 border-ink bg-white p-5">
+        <p className="leading-7 text-muted">{description}</p>
       </div>
 
       <MoveGrid moves={moves} small={small} />
@@ -56,39 +56,19 @@ function Section({ title, description, moves, small = false }) {
 export default function Page() {
   return (
     <>
-      {/* Navbar */}
-      <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/random/logo.png"
-              alt="CubeVerse logo"
-              className=" rounded-full object-cover"
-              height={70}
-              width={70}
-            />
-          </Link>
-
-          <h1 className="text-center text-xl font-bold text-slate-800 sm:text-2xl md:text-3xl">
-            Rubik's Cube Move Notation
-          </h1>
-
-          <div className="w-12 text-center text-sm font-medium text-slate-500">
-            Note
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Tutorial */}
-      <main className="min-h-screen bg-slate-100 px-4 py-10">
+      <main className="min-h-screen px-4 py-10">
         <section className="mx-auto max-w-6xl">
-          <div className="mb-10 grid items-center gap-8 rounded-2xl bg-white p-6 shadow-md md:grid-cols-2 md:p-8">
+          <h1 className="mb-8 text-4xl font-bold tracking-tight">Cube Move Notation</h1>
+          <div className="mb-10 grid items-center gap-8 rounded-xl border-2 border-ink bg-white p-6 md:grid-cols-2 md:p-8">
             <div>
-              <h2 className="mb-4 text-2xl font-bold text-slate-800">
+              <h2 className="mb-4 text-2xl font-bold">
                 Learn Cube Notation
               </h2>
 
-              <p className="leading-7 text-slate-600">
+              <p className="leading-7 text-muted">
                 This video shows how to read moves on the Rubik's Cube so you
                 can follow written algorithms. Below are the 3x3 moves for
                 reference, but keep in mind that there is also different
@@ -97,7 +77,7 @@ export default function Page() {
               </p>
             </div>
 
-            <div className="overflow-hidden rounded-xl shadow-lg">
+            <div className="overflow-hidden rounded-xl border-2 border-ink">
               <iframe
                 className="aspect-video w-full"
                 src="https://www.youtube.com/embed/24eHm4ri8WM?si=triHctbwJM5zgvku"
@@ -113,17 +93,17 @@ export default function Page() {
           {/* Face Turns */}
           <section>
             <div className="mb-8 flex items-center gap-4">
-              <div className="h-px flex-1 bg-slate-300" />
+              <div className="h-0.5 flex-1 bg-ink" />
 
-              <h2 className="text-2xl font-bold text-slate-800 sm:text-3xl">
+              <h2 className="text-2xl font-bold sm:text-3xl">
                 Face Turns
               </h2>
 
-              <div className="h-px flex-1 bg-slate-300" />
+              <div className="h-0.5 flex-1 bg-ink" />
             </div>
 
-            <div className="mb-6 rounded-xl bg-white p-5 shadow-sm">
-              <p className="leading-7 text-slate-600">
+            <div className="mb-6 rounded-xl border-2 border-ink bg-white p-5">
+              <p className="leading-7 text-muted">
                 The basic moves are <b>U</b>p, <b>D</b>own, <b>R</b>ight,{" "}
                 <b>L</b>eft, <b>F</b>ront, <b>B</b>ack.
                 <br />
@@ -146,8 +126,8 @@ export default function Page() {
             />
 
             {/* Prime Moves */}
-            <div className="my-8 rounded-xl bg-white p-5 shadow-sm">
-              <p className="leading-7 text-slate-600">
+            <div className="my-8 rounded-xl border-2 border-ink bg-white p-5">
+              <p className="leading-7 text-muted">
                 An apostrophe (pronounced as prime) means to turn the face in
                 the opposite direction (counterclockwise).
               </p>
@@ -165,8 +145,8 @@ export default function Page() {
             />
 
             {/* Double Moves */}
-            <div className="my-8 rounded-xl bg-white p-5 shadow-sm">
-              <p className="leading-7 text-slate-600">
+            <div className="my-8 rounded-xl border-2 border-ink bg-white p-5">
+              <p className="leading-7 text-muted">
                 The number <b>2</b> means to turn that face twice.
               </p>
             </div>
@@ -224,7 +204,7 @@ export default function Page() {
             <div className="mt-12 flex justify-center">
               <Link
                 href="/"
-                className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-blue-700 hover:shadow-lg active:scale-95"
+                className="rounded-md border-2 border-ink bg-ink px-6 py-3 font-semibold text-paper transition hover:bg-muted"
               >
                 Home Page
               </Link>

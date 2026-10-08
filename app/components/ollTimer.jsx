@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import useSpaceTimer from "./useSpaceTimer";
 
 export default function Timer() {
 const algorithms = {
@@ -69,23 +70,14 @@ const algorithms = {
   const [algo, setAlgo] = useState("");
   const [mounted, setMounted] = useState(false);
 
-  const [time, setTime] = useState("0.00");
   const [currentTime, setCurrentTime] = useState(null);
   const [bestTime, setBestTime] = useState(null);
   const [solves, setSolves] = useState([]);
   const [cases, setCases] = useState(()=>{
-    const savedData = localStorage.getItem("selectedCases")
+    const savedData = typeof window === "undefined" ? null : localStorage.getItem("selectedCases")
     const parsedData = JSON.parse(savedData)
-    return parsedData ? parsedData : Object.keys(algorithms)
+    return parsedData?.length ? parsedData : [] // empty = all cases, picked at random
   })
-  const startTimeRef = useRef(null);
-  const intervalRef = useRef(null);
-  const currentTimeRef = useRef(0);
-  //   useEffect(()=>{
-  //   const savedData = localStorage.getItem("selectedCases")
-  //   const parsedData = JSON.parse(savedData)
-  //   parsedData ? setCases(parsedData) : setCases(Object.keys(algorithms))
-  // },[])
 
   const changeAlgo = () => {
     const algorithmKeys = Object.keys(algorithms)
@@ -106,98 +98,43 @@ const algorithms = {
     changeAlgo();
   }, []);
 
-  useEffect(() => {
-    const handleKeyUp = (e) => {
-      if (e.code !== "Space") return;
-
-      e.preventDefault();
-
-      // START
-      if (startTimeRef.current === null) {
-        const start = Date.now();
-
-        startTimeRef.current = start;
-
-        intervalRef.current = setInterval(() => {
-          const elapsed = (Date.now() - start) / 1000;
-
-          currentTimeRef.current = elapsed;
-
-          setTime(elapsed.toFixed(2));
-        }, 50);
-
-        return;
-      }
-
-      // STOP
-      clearInterval(intervalRef.current);
-
-      const finalTime = currentTimeRef.current;
-
-      if (finalTime <= 0) return;
-
-      setCurrentTime(finalTime);
-
-      setSolves((prev) => [...prev, finalTime]);
-
-      setBestTime((prev) => {
-        if (prev === null || finalTime < prev) {
-          return finalTime;
-        }
-
-        return prev;
-      });
-
-      // Reset timer
-      startTimeRef.current = null;
-      intervalRef.current = null;
-      currentTimeRef.current = 0;
-
-      setTime(finalTime.toFixed(2));
-
-      // New scramble
-      changeAlgo();
-    };
-
-    window.addEventListener("keyup", handleKeyUp);
-
-    return () => {
-      window.removeEventListener("keyup", handleKeyUp);
-
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
+  const { time, holding, running, resetTime } = useSpaceTimer((finalTime) => {
+    setCurrentTime(finalTime);
+    setSolves((prev) => [...prev, finalTime]);
+    setBestTime((prev) => (prev === null || finalTime < prev ? finalTime : prev));
+    changeAlgo();
+  });
 
   // Get image based on current algorithm
   const currentImage =
     algo && algorithms[algo] ? `/oll/${algorithms[algo]}` : null;
 
+  const status = running ? "Solving..." : holding ? "Release to start" : "Ready";
+
   return (
-    <>
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       {/* Scramble Display */}
-      <div className="relative mb-6 overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-5 shadow-2xl backdrop-blur-md transition-all hover:border-zinc-700/80 sm:p-6">
-        <div className="absolute top-0 left-0 h-[2px] w-full bg-gradient-to-r from-emerald-500 via-sky-500 to-amber-500" />
+      <div className="relative overflow-hidden rounded-xl border-2 border-ink bg-white p-4 pt-5">
+        <div className="absolute left-0 top-0 flex h-2 w-full" aria-hidden="true"><span className="flex-1 bg-cube-red" /><span className="flex-1 bg-cube-orange" /><span className="flex-1 bg-cube-yellow" /><span className="flex-1 bg-cube-green" /><span className="flex-1 bg-cube-blue" /><span className="flex-1 bg-paper" /></div>
 
         <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-emerald-400">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-ink">
             Scramble
           </span>
 
-          <span className="text-[11px] font-medium tracking-wider text-zinc-500">
+          <span className="text-[11px] font-medium tracking-wider text-muted">
             3x3 WCA
           </span>
         </div>
 
-        <div className="mt-4 flex flex-col items-center gap-4 rounded-xl border border-zinc-800 bg-zinc-950/40 p-4 sm:p-5 md:flex-row md:justify-between md:gap-6">
-          <p className="min-w-0 flex-1 break-words text-center font-mono text-base font-bold leading-relaxed tracking-wide text-zinc-100 selection:bg-emerald-500/30 selection:text-emerald-200 sm:text-lg md:text-left md:text-xl">
+        <div className="mt-2 flex items-center justify-between gap-4 rounded-xl border border-ink/30 bg-paper p-3">
+          <p className="min-w-0 flex-1 break-words font-mono text-base font-bold  tracking-wide text-ink  sm:text-lg md:text-xl">
             {mounted ? algo : "Generating scramble..."}
           </p>
 
+
           {mounted && currentImage && (
-            <div className="flex shrink-0 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950/80 p-2 shadow-inner transition-transform duration-200 hover:scale-105">
+            <div className="flex shrink-0 items-center justify-center rounded-md border-2 border-ink bg-white p-2">
               <Image
                 src={currentImage}
                 width={64}
@@ -212,102 +149,84 @@ const algorithms = {
       </div>
 
       {/* Main Trainer Grid */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-3 lg:grid-rows-[minmax(auto,1fr)_auto]">
         {/* Timer Hero Card */}
-        <div className="group relative flex min-h-[300px] items-center justify-center rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-6 shadow-2xl backdrop-blur-md transition-all lg:col-span-2">
-          <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-sky-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+        <div className="flex min-h-0 items-center justify-center rounded-xl border-2 border-ink bg-white p-4 lg:col-span-2">
 
           <div className="relative text-center">
-            <span className="inline-block rounded-full border border-zinc-700/50 bg-zinc-800/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
-              Ready
+            <span className="inline-block rounded-md border border-ink/30 bg-paper px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-muted">
+              {status}
             </span>
 
-            <p className="my-4 font-mono text-7xl font-black tracking-tight text-white tabular-nums drop-shadow-[0_0_25px_rgba(255,255,255,0.15)] sm:text-8xl md:text-9xl">
-              {time}
+            <p className={`my-2 font-mono text-7xl font-black tracking-tight tabular-nums sm:text-8xl md:text-9xl ${holding ? "text-cube-green" : "text-ink"}`}>
+              {time.toFixed(2)}
             </p>
 
-            <div className="inline-flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-800/40 px-3 py-1.5 text-xs font-medium text-zinc-400">
-              <kbd className="rounded bg-zinc-700/70 px-1.5 py-0.5 font-mono text-[10px] text-zinc-200 shadow">
+            <div className="inline-flex items-center gap-2 rounded-lg border border-ink/30 bg-paper px-3 py-1.5 text-xs font-medium text-muted">
+              <kbd className="rounded bg-ink px-1.5 py-0.5 font-mono text-[10px] text-paper">
                 SPACE
               </kbd>
 
-              <span>Hold & release to solve</span>
+              <span>{running ? "Press to stop" : "Hold until green, release to start"}</span>
             </div>
           </div>
         </div>
 
         {/* Statistics Card */}
-        <div className="flex flex-col justify-between rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-6 shadow-2xl backdrop-blur-md">
-          <div>
-            <div className="mb-5 flex items-center justify-between">
-              <h3 className="text-base font-bold uppercase tracking-wider text-zinc-200">
-                Session Stats
-              </h3>
-
-              <button
-                onClick={() => {
+        <div className="flex flex-col gap-3 rounded-xl border-2 border-ink bg-white p-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-bold uppercase tracking-wider">Statistics</h2>
+            <button
+              onClick={() => {
                   setBestTime(null);
                   setCurrentTime(null);
                   setSolves([]);
-                  setTime("0.00");
+                  resetTime();
                 }}
-                title="Reset Session"
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-700/60 bg-zinc-800/50 text-zinc-400 transition-colors hover:border-rose-500/50 hover:bg-rose-500/10 hover:text-rose-400"
-              >
-                ↻
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-3 text-center">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-                  Current
-                </span>
-
-                <p className="mt-1 font-mono text-xl font-extrabold text-sky-400">
-                  {currentTime !== null ? currentTime.toFixed(2) : "--"}
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-center">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">
-                  PB (Best)
-                </span>
-
-                <p className="mt-1 font-mono text-xl font-extrabold text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.3)]">
-                  {bestTime !== null ? bestTime.toFixed(2) : "--"}
-                </p>
-              </div>
-            </div>
+              title="Reset session"
+              aria-label="Reset session"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-ink/30 bg-paper text-muted transition-colors hover:border-cube-red hover:text-cube-red"
+            >
+              ↻
+            </button>
           </div>
 
-          <div className="mt-6 flex items-center justify-between rounded-xl border border-zinc-800/60 bg-zinc-950/40 px-4 py-3">
-            <span className="text-xs font-semibold text-zinc-400">
-              Total Solves
-            </span>
-
-            <span className="rounded-md bg-zinc-800 px-2 py-0.5 font-mono text-sm font-bold text-zinc-200">
-              {solves.length}
-            </span>
-          </div>
+          <dl className="grid grid-cols-2 gap-2">
+            <div className="rounded-lg border border-ink/30 bg-paper p-2 text-center">
+              <dt className="text-[11px] font-bold uppercase tracking-wider text-muted">Current</dt>
+              <dd className="font-mono text-lg font-extrabold">{currentTime !== null ? currentTime.toFixed(2) : "--"}</dd>
+            </div>
+            <div className="rounded-lg border-2 border-ink bg-cube-yellow p-2 text-center">
+              <dt className="text-[11px] font-bold uppercase tracking-wider">Best</dt>
+              <dd className="font-mono text-lg font-extrabold">{bestTime !== null ? bestTime.toFixed(2) : "--"}</dd>
+            </div>
+            <div className="rounded-lg border border-ink/30 bg-paper p-2 text-center">
+              <dt className="text-[11px] font-bold uppercase tracking-wider text-muted">Solves</dt>
+              <dd className="font-mono text-lg font-extrabold">{solves.length}</dd>
+            </div>
+            <div className="rounded-lg border border-ink/30 bg-paper p-2 text-center">
+              <dt className="text-[11px] font-bold uppercase tracking-wider text-muted">Average</dt>
+              <dd className="font-mono text-lg font-extrabold">{solves.length > 0 ? (solves.reduce((a, b) => a + b, 0) / solves.length).toFixed(2) : "--"}</dd>
+            </div>
+          </dl>
         </div>
 
         {/* Solve Logs */}
-        <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-6 shadow-2xl backdrop-blur-md lg:col-span-3">
+        <div className="rounded-xl border-2 border-ink bg-white p-4 lg:col-span-3">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold uppercase tracking-wider text-zinc-200">
+            <h3 className="text-base font-bold uppercase tracking-wider text-ink">
               Solve History
             </h3>
 
-            <span className="text-xs font-medium text-zinc-500">
+            <span className="text-xs font-medium text-muted">
               {solves.length} recorded
             </span>
           </div>
 
-          <div className="h-36 overflow-y-auto rounded-xl border border-zinc-800/60 bg-zinc-950/60 p-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-zinc-800">
+          <div className="h-24 overflow-y-auto rounded-xl border border-ink/30 bg-paper p-3 ">
             {solves.length === 0 ? (
               <div className="flex h-full items-center justify-center">
-                <p className="text-xs font-medium text-zinc-600">
+                <p className="text-xs font-medium text-muted">
                   No solves completed in this session
                 </p>
               </div>
@@ -316,17 +235,17 @@ const algorithms = {
                 {solves.map((solve, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/80 px-3 py-2 text-xs font-mono transition-all hover:border-zinc-700"
+                    className="flex items-center justify-between rounded-lg border border-ink/30 bg-paper px-3 py-2 text-xs font-mono hover:border-ink"
                   >
-                    <span className="font-sans text-[10px] text-zinc-500">
+                    <span className="font-sans text-[10px] text-muted">
                       #{index + 1}
                     </span>
 
                     <span
                       className={`font-bold ${
                         solve === bestTime
-                          ? "text-amber-400"
-                          : "text-zinc-300"
+                          ? "text-ink"
+                          : "text-ink"
                       }`}
                     >
                       {solve.toFixed(2)}s
@@ -338,6 +257,6 @@ const algorithms = {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

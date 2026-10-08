@@ -1,7 +1,6 @@
 'use client'
 import React from 'react'
 import Navbar from '../components/Navbar'
-import Link from 'next/link'
 import { useState, useEffect } from 'react'
 export default function page() {
 const [selectrow, setSelectrow] = useState([])
@@ -27,27 +26,28 @@ useEffect(() => {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-slate-100 px-4 py-10">
+      <main className="min-h-screen px-4 py-10">
         <div className="mx-auto max-w-7xl">
 
           {/* Header */}
-          <div className="mb-8 text-center">
-            <h1 className="text-4xl font-bold text-slate-800">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold tracking-tight">
               OLL Algorithms
             </h1>
 
-            <p className="mx-auto mt-3 max-w-2xl leading-7 text-slate-600">
+            <p className="mt-3 max-w-2xl leading-7 text-muted">
               OLL (Orientation of the Last Layer) solves the top color of the
               last layer. This is the 3rd step of the CFOP method.
             </p>
+            <p className="mt-2 text-sm text-muted">Click a row to add or remove that case from the trainer.</p>
           </div>
 
           {/* Table */}
-          <div className="overflow-hidden rounded-2xl bg-white shadow-lg">
+          <div className="overflow-hidden rounded-xl border-2 border-ink bg-white">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[750px] border-collapse text-left">
                 <thead>
-                  <tr className="bg-slate-800 text-white">
+                  <tr className="bg-ink text-paper">
                     <th className="px-5 py-4 text-center font-semibold">
                       Name
                     </th>
@@ -151,27 +151,27 @@ useEffect(() => {
                         );
 
                       }}
-                      className={`border-b border-slate-200 transition ${selectrow.includes(number) ? "bg-yellow-300" : null}`}
+                      className={`cursor-pointer border-b border-ink/20 transition-colors ${selectrow.includes(number) ? "bg-cube-yellow shadow-[inset_6px_0_0_var(--color-ink)] hover:bg-cube-yellow" : "hover:bg-ink/5"}`}
                     >
-                      <td className="px-5 py-4 text-center font-bold text-slate-700">
+                      <td className="px-5 py-4 text-center font-bold">
                         {number}
                       </td>
 
                       <td className="px-5 py-4">
                         <div
-                          className="mx-auto h-20 w-20 rounded-lg bg-slate-100 bg-contain bg-center bg-no-repeat"
+                          className="mx-auto h-20 w-20 rounded-lg border border-ink/20 bg-white bg-contain bg-center bg-no-repeat"
                           style={{
                             backgroundImage: `url("/oll/${image}")`,
                           }}
                         />
                       </td>
 
-                      <td className="px-5 py-4 font-mono text-sm font-medium text-slate-700 text-center">
+                      <td className="px-5 py-4 font-mono text-base font-semibold">
                         {algorithm}
                       </td>
 
                       <td className="px-5 py-4 text-center">
-                        <span className="whitespace-nowrap rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700">
+                        <span className="whitespace-nowrap rounded-md border-2 border-ink bg-paper px-3 py-1 text-sm font-medium">
                           {group}
                         </span>
                       </td>
@@ -182,24 +182,14 @@ useEffect(() => {
             </div>
 
             {/* Train Button */}
-            <div className="flex justify-center border-t border-slate-200 p-6">
+            <div className="flex justify-center border-t-2 border-ink p-6">
               <a
                 href="/ollTrainer"
-                className="rounded-lg bg-blue-600 px-7 py-3 font-semibold text-white shadow-md transition hover:bg-blue-700 hover:shadow-lg active:scale-95"
+                className="rounded-md border-2 border-ink bg-ink px-7 py-3 font-semibold text-paper transition hover:bg-muted"
               >
                 Train OLL
               </a>
             </div>
-          </div>
-
-          {/* Home */}
-          <div className="mt-8 flex justify-center">
-            <Link
-              href="/"
-              className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95"
-            >
-              Home Page
-            </Link>
           </div>
         </div>
       </main>

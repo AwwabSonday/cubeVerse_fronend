@@ -1,30 +1,24 @@
 import Link from 'next/link'
 import React from 'react'
+import Navbar from '../components/Navbar'
 import Timer from '../components/pllTimer.jsx';
+
 export default function page() {
   return (
-    <>
-  <main className="min-h-screen bg-slate-100 px-4 py-8 sm:px-6">
-    <div className="mx-auto max-w-6xl">
-      {/* Header */}
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-slate-800 sm:text-4xl">
-          PLL Trainer
-        </h1>
+    <div className="flex h-dvh flex-col overflow-hidden">
+      <Navbar />
+      <main className="min-h-0 flex-1 px-4 py-4 sm:px-6">
+        <div className="mx-auto flex h-full max-w-6xl flex-col gap-4">
+          <div className="flex flex-wrap items-baseline gap-x-4">
+            <h1 className="text-3xl font-bold tracking-tight">PLL Trainer</h1>
+            <Link href="/pllAlgorithm" className="font-semibold underline underline-offset-4">
+              View all algorithms
+            </Link>
+          </div>
 
-        <Link
-          href="/pllAlgorithm"
-          className="mt-3 inline-block text-sm font-semibold text-blue-600 transition hover:text-blue-700 hover:underline"
-        >
-          Algorithms
-        </Link>
-      </div>
-
-      {/* Algorithm */}
-      <Timer />
-
+          <Timer />
+        </div>
+      </main>
     </div>
-  </main>
-</>
   )
 }

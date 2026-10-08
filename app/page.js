@@ -3,147 +3,119 @@ import Navbar from './components/Navbar'
 import Link from 'next/link'
 import Image from 'next/image'
 
+// Each tool is one "face" of the cube, so each gets a sticker colour.
+const sections = [
+  {
+    title: 'Learn',
+    items: [
+      { href: '/notation', img: '/notations/x.png', label: 'Cube Notations', text: 'Read R, U, F and every turn.', face: 'bg-paper' },
+      { href: '/ollAlgorithm', img: '/random/ollImage.png', label: 'OLL Algorithms', text: 'Orient the last layer.', face: 'bg-cube-yellow' },
+      { href: '/pllAlgorithm', img: '/random/pllImage.png', label: 'PLL Algorithms', text: 'Permute the last layer.', face: 'bg-cube-green' },
+    ],
+  },
+  {
+    title: 'Practice',
+    items: [
+      { href: '/pllTrainer', img: '/random/plltrainer.webp', label: 'PLL Trainer', text: 'Drill cases until they are instant.', face: 'bg-cube-blue' },
+      { href: '/ollTrainer', img: '/random/olltrainer.webp', label: 'OLL Trainer', text: 'Recognise every OLL case.', face: 'bg-cube-orange' },
+      { href: '/trainer', img: '/random/notaionImage.webp', label: 'Cube Timer', text: 'Time your solves.', face: 'bg-cube-red' },
+    ],
+  },
+]
+
+// 3x3 face used as the hero graphic
+const stickers = [
+  'bg-cube-red', 'bg-cube-yellow', 'bg-cube-blue',
+  'bg-cube-green', 'bg-paper', 'bg-cube-orange',
+  'bg-cube-orange', 'bg-cube-blue', 'bg-cube-green',
+]
+
 export default function page() {
   return (
     <>
       <Navbar />
 
-      {/* Main */}
-      <main className="min-h-screen bg-slate-100 px-6 py-12">
-        <div className="mx-auto max-w-6xl space-y-8">
-
-          {/* Row 1 */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-
-            <Link href="/notation" className="group">
-              <div className="overflow-hidden rounded-2xl bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-                <Image
-                  src="/notations/x.png"
-                  loading='eager'
-                  width={600}
-                  height={400}
-                  alt="Cube notation"
-                  className="w-full object-cover object-center transition duration-500 group-hover:scale-105"
-                />
-
-                <p className="p-5 text-center text-lg font-semibold text-slate-700">
-                  Cube Notations
-                </p>
-              </div>
-            </Link>
-
-            <Link href="/ollAlgorithm" className="group">
-              <div className="overflow-hidden rounded-2xl bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-                <Image
-                  src="/random/ollImage.png"
-                  loading = 'eager'
-                  width={600}
-                  height={400}
-                  alt="OLL algorithms"
-                  className="w-full object-cover object-center transition duration-500 group-hover:scale-105"
-                />
-
-                <p className="p-5 text-center text-lg font-semibold text-slate-700">
-                  OLL Algorithms
-                </p>
-              </div>
-            </Link>
-
-            <Link href="/pllAlgorithm" className="group">
-              <div className="overflow-hidden rounded-2xl bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-                <Image
-                  src="/random/pllImage.png"
-                  loading = 'eager'
-                  width={600}
-                  height={400}
-                  alt="PLL algorithms"
-                  className="w-full object-cover object-center transition duration-500 group-hover:scale-105"
-                />
-
-                <p className="p-5 text-center text-lg font-semibold text-slate-700">
-                  PLL Algorithms
-                </p>
-              </div>
-            </Link>
-
+      <main>
+        {/* Hero */}
+        <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 md:py-20">
+          <div>
+            <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
+              Solve faster. Learn every algorithm.
+            </h1>
+            <p className="mt-4 max-w-md text-lg leading-7 text-muted">
+              Notation, OLL and PLL references, trainers and a timer, all in one place.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/trainer"
+                className="rounded-md border-2 border-ink bg-ink px-6 py-3 font-semibold text-paper transition hover:bg-muted"
+              >
+                Start the timer
+              </Link>
+              <Link
+                href="/notation"
+                className="rounded-md border-2 border-ink px-6 py-3 font-semibold transition hover:bg-ink hover:text-paper"
+              >
+                Learn notation
+              </Link>
+            </div>
           </div>
 
-          {/* Row 2 */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-
-            <Link href="/pllTrainer" className="group">
-              <div className="overflow-hidden rounded-2xl bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-                <Image
-                  src="/random/plltrainer.webp"
-                  loading = 'eager'
-                  width={600}
-                  height={400}
-                  alt="PLL trainer"
-                  className="w-full object-cover object-center transition duration-500 group-hover:scale-105"
-                />
-
-                <p className="p-5 text-center text-lg font-semibold text-slate-700">
-                  PLL Trainer
-                </p>
-              </div>
-            </Link>
-
-            <Link href="/ollTrainer" className="group">
-              <div className="overflow-hidden rounded-2xl bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-                <Image
-                  src="/random/olltrainer.webp"
-                  loading = 'eager'
-                  width={600}
-                  height={400}
-                  alt="OLL trainer"
-                  className="w-full object-cover object-center transition duration-500 group-hover:scale-105"
-                />
-
-                <p className="p-5 text-center text-lg font-semibold text-slate-700">
-                  OLL Trainer
-                </p>
-              </div>
-            </Link>
-
-            <Link href="/trainer" className="group">
-              <div className="overflow-hidden rounded-2xl bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-                <Image
-                  src="/random/notaionImage.webp"
-                  loading = 'eager'
-                  width={600}
-                  height={400}
-                  alt="Cube timer"
-                  className="w-full object-cover object-center transition duration-500 group-hover:scale-105"
-                />
-
-                <p className="p-5 text-center text-lg font-semibold text-slate-700">
-                  Cube Timer
-                </p>
-              </div>
-            </Link>
-
+          <div aria-hidden="true" className="mx-auto grid w-full max-w-xs grid-cols-3 gap-2 rounded-xl bg-ink p-2 sm:max-w-sm">
+            {stickers.map((color, i) => (
+              <div key={i} className={`aspect-square rounded-md ${color}`} />
+            ))}
           </div>
-        </div>
+        </section>
+
+        {/* Tools */}
+        {sections.map((section) => (
+          <section key={section.title} className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+            <h2 className="mb-5 border-b-2 border-ink pb-2 text-2xl font-bold">{section.title}</h2>
+            <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {section.items.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="group block h-full overflow-hidden rounded-xl border-2 border-ink bg-white transition hover:-translate-y-1"
+                  >
+                    <div className={`${item.face} p-3`}>
+                      <Image
+                        src={item.img}
+                        width={300}
+                        height={300}
+                        alt=""
+                        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                        className="aspect-square w-full rounded-md border-2 border-ink bg-white object-contain p-2"
+                      />
+                    </div>
+                    <div className="border-t-2 border-ink p-4">
+                      <p className="text-lg font-bold group-hover:underline">{item.label}</p>
+                      <p className="mt-1 text-muted">{item.text}</p>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
       </main>
 
       {/* Contact / About */}
-      <section className="bg-slate-900 px-6 py-12 text-white">
+      <footer className="mt-8 bg-ink px-4 py-12 text-paper sm:px-6">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 md:grid-cols-3">
-
           <div>
-            <p className="mb-3 text-xl font-bold">Contact Us</p>
-
-            <p className="mb-4 text-slate-300">
-              Have questions or suggestions? We’d love to hear from you!
+            <h2 className="mb-3 text-xl font-bold">Contact us</h2>
+            <p className="mb-4 text-paper/80">
+              Have questions or suggestions? We’d love to hear from you.
             </p>
-
-            <p className="text-slate-300">
+            <p className="text-paper/80">
               Email:{' '}
               <Link
                 href="https://mail.google.com/mail/?view=cm&fs=1&to=sayyedmustaqim736@gmail.com,awwabsonday@gmail.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-blue-400 transition hover:text-blue-300 hover:underline"
+                className="font-semibold text-cube-yellow underline underline-offset-4"
               >
                 support@cubeverse.com
               </Link>
@@ -151,28 +123,25 @@ export default function page() {
           </div>
 
           <div>
-            <p className="mb-3 text-xl font-bold">About Us</p>
-
-            <p className="leading-7 text-slate-300">
+            <h2 className="mb-3 text-xl font-bold">About us</h2>
+            <p className="leading-7 text-paper/80">
               Whether you’re learning your first algorithm or chasing your next
-              personal best, CubeVerse is here to inspire, teach, and connect you
-              with the cubing community.
+              personal best, CubeVerse is here to teach and connect you with the
+              cubing community.
             </p>
           </div>
 
-          <div className="flex items-center justify-center md:justify-end">
+          <div className="flex items-center md:justify-end">
             <Image
               src="/random/logo.png"
-              loading='eager'
-              width={100}
-              height={100}
+              width={88}
+              height={88}
               alt="CubeVerse logo"
-              className="rounded-full object-cover"
+              className="rounded-md"
             />
           </div>
-
         </div>
-      </section>
+      </footer>
     </>
   )
 }
