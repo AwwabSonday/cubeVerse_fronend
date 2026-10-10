@@ -19,7 +19,7 @@ function Navbar() {
 
   return (
     <header className="border-b-2 border-ink">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-1.5 px-4 py-2 sm:px-6 sm:py-2.5">
         <Link href="/" className="flex items-center gap-3">
           <Image src="/random/logo.png" height={44} width={44} alt="" className="rounded-md" />
           <span className="text-xl font-bold tracking-tight">CubeVerse</span>

@@ -149,20 +149,20 @@ const algorithms = {
       </div>
 
       {/* Main Trainer Grid */}
-      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-3 lg:grid-rows-[minmax(auto,1fr)_auto]">
+      <div className="grid min-h-0 flex-1 gap-2.5 sm:gap-3 lg:grid-cols-3 lg:grid-rows-[1fr_auto]">
         {/* Timer Hero Card */}
-        <div className="flex min-h-0 items-center justify-center rounded-xl border-2 border-ink bg-white p-4 lg:col-span-2">
+        <div className="flex min-h-0 items-center justify-center rounded-xl border-2 border-ink bg-white p-3 sm:p-4 lg:col-span-2">
 
           <div className="relative text-center">
-            <span className="inline-block rounded-md border border-ink/30 bg-paper px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-muted">
+            <span className="inline-block rounded-md border border-ink/30 bg-paper px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-muted">
               {status}
             </span>
 
-            <p className={`my-2 font-mono text-7xl font-black tracking-tight tabular-nums sm:text-8xl md:text-9xl ${holding ? "text-cube-green" : "text-ink"}`}>
+            <p className={`my-1 sm:my-2 font-mono text-6xl sm:text-7xl md:text-8xl font-black tracking-tight leading-none tabular-nums ${holding ? "text-cube-green" : "text-ink"}`}>
               {time.toFixed(2)}
             </p>
 
-            <div className="inline-flex items-center gap-2 rounded-lg border border-ink/30 bg-paper px-3 py-1.5 text-xs font-medium text-muted">
+            <div className="inline-flex items-center gap-2 rounded-lg border border-ink/30 bg-paper px-2.5 py-1 text-[11px] sm:text-xs font-medium text-muted">
               <kbd className="rounded bg-ink px-1.5 py-0.5 font-mono text-[10px] text-paper">
                 SPACE
               </kbd>
@@ -173,9 +173,9 @@ const algorithms = {
         </div>
 
         {/* Statistics Card */}
-        <div className="flex flex-col gap-3 rounded-xl border-2 border-ink bg-white p-4">
+        <div className="flex min-h-0 flex-col justify-between rounded-xl border-2 border-ink bg-white p-3 sm:p-3.5">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold uppercase tracking-wider">Statistics</h2>
+            <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-ink">Statistics</h2>
             <button
               onClick={() => {
                   setBestTime(null);
@@ -185,36 +185,47 @@ const algorithms = {
                 }}
               title="Reset session"
               aria-label="Reset session"
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-ink/30 bg-paper text-muted transition-colors hover:border-cube-red hover:text-cube-red"
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-ink/30 bg-paper text-xs text-muted transition-colors hover:border-cube-red hover:text-cube-red"
             >
               ↻
             </button>
           </div>
 
-          <dl className="grid grid-cols-2 gap-2">
-            <div className="rounded-lg border border-ink/30 bg-paper p-2 text-center">
-              <dt className="text-[11px] font-bold uppercase tracking-wider text-muted">Current</dt>
-              <dd className="font-mono text-lg font-extrabold">{currentTime !== null ? currentTime.toFixed(2) : "--"}</dd>
+          <div className="grid grid-cols-2 gap-1.5 sm:gap-2 my-auto py-1">
+            <div className="flex flex-col items-center justify-center rounded-lg border border-ink/30 bg-paper py-1 sm:py-1.5 px-2 text-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted">Current</span>
+              <span className="font-mono text-sm sm:text-base md:text-lg font-extrabold text-ink leading-tight">
+                {currentTime !== null ? currentTime.toFixed(2) : "--"}
+              </span>
             </div>
-            <div className="rounded-lg border-2 border-ink bg-cube-yellow p-2 text-center">
-              <dt className="text-[11px] font-bold uppercase tracking-wider">Best</dt>
-              <dd className="font-mono text-lg font-extrabold">{bestTime !== null ? bestTime.toFixed(2) : "--"}</dd>
+
+            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-ink bg-cube-yellow py-1 sm:py-1.5 px-2 text-center shadow-sm">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-ink">Best</span>
+              <span className="font-mono text-sm sm:text-base md:text-lg font-extrabold text-ink leading-tight">
+                {bestTime !== null ? bestTime.toFixed(2) : "--"}
+              </span>
             </div>
-            <div className="rounded-lg border border-ink/30 bg-paper p-2 text-center">
-              <dt className="text-[11px] font-bold uppercase tracking-wider text-muted">Solves</dt>
-              <dd className="font-mono text-lg font-extrabold">{solves.length}</dd>
+
+            <div className="flex flex-col items-center justify-center rounded-lg border border-ink/30 bg-paper py-1 sm:py-1.5 px-2 text-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted">Solves</span>
+              <span className="font-mono text-sm sm:text-base md:text-lg font-extrabold text-ink leading-tight">
+                {solves.length}
+              </span>
             </div>
-            <div className="rounded-lg border border-ink/30 bg-paper p-2 text-center">
-              <dt className="text-[11px] font-bold uppercase tracking-wider text-muted">Average</dt>
-              <dd className="font-mono text-lg font-extrabold">{solves.length > 0 ? (solves.reduce((a, b) => a + b, 0) / solves.length).toFixed(2) : "--"}</dd>
+
+            <div className="flex flex-col items-center justify-center rounded-lg border border-ink/30 bg-paper py-1 sm:py-1.5 px-2 text-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted">Average</span>
+              <span className="font-mono text-sm sm:text-base md:text-lg font-extrabold text-ink leading-tight">
+                {solves.length > 0 ? (solves.reduce((a, b) => a + b, 0) / solves.length).toFixed(2) : "--"}
+              </span>
             </div>
-          </dl>
+          </div>
         </div>
 
         {/* Solve Logs */}
-        <div className="rounded-xl border-2 border-ink bg-white p-4 lg:col-span-3">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold uppercase tracking-wider text-ink">
+        <div className="flex min-h-0 flex-col rounded-xl border-2 border-ink bg-white p-2.5 sm:p-3 lg:col-span-3">
+          <div className="mb-1.5 flex items-center justify-between">
+            <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-ink">
               Solve History
             </h3>
 
@@ -223,7 +234,7 @@ const algorithms = {
             </span>
           </div>
 
-          <div className="h-24 overflow-y-auto rounded-xl border border-ink/30 bg-paper p-3 ">
+          <div className="h-16 sm:h-20 overflow-y-auto rounded-lg border border-ink/30 bg-paper p-2">
             {solves.length === 0 ? (
               <div className="flex h-full items-center justify-center">
                 <p className="text-xs font-medium text-muted">
