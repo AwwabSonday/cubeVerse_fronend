@@ -18,7 +18,7 @@ function Navbar() {
   const pathname = usePathname()
 
   return (
-    <header className="border-b-2 border-ink">
+    <header className="sticky top-0 z-50 border-b-2 border-ink bg-paper shadow-sm">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-1.5 px-4 py-2 sm:px-6 sm:py-2.5">
         <Link href="/" className="flex items-center gap-3">
           <Image src="/random/logo.png" height={44} width={44} alt="" className="rounded-md" />
