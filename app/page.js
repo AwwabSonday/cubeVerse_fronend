@@ -9,8 +9,10 @@ const sections = [
     title: 'Learn',
     items: [
       { href: '/notation', img: '/notations/x.png', label: 'Cube Notations', text: 'Read R, U, F and every turn.', face: 'bg-paper' },
-      { href: '/ollAlgorithm', img: '/random/ollImage.png', label: 'OLL Algorithms', text: 'Orient the last layer.', face: 'bg-cube-yellow' },
-      { href: '/pllAlgorithm', img: '/random/pllImage.png', label: 'PLL Algorithms', text: 'Permute the last layer.', face: 'bg-cube-green' },
+      { href: '/beginnerOll', img: '/b_oll/sune.png', label: 'Beginner OLL', text: 'Orient last layer with 10 algorithms.', face: 'bg-cube-orange' },
+      { href: '/ollAlgorithm', img: '/random/ollImage.png', label: 'OLL Algorithms', text: 'Full 57 last layer cases.', face: 'bg-cube-yellow' },
+      { href: '/beginnerPll', img: '/b_pll/headlights.png', label: 'Beginner PLL', text: 'Permute last layer with 6 algorithms.', face: 'bg-cube-blue' },
+      { href: '/pllAlgorithm', img: '/random/pllImage.png', label: 'PLL Algorithms', text: 'Full 21 last layer cases.', face: 'bg-cube-green' },
     ],
   },
   {

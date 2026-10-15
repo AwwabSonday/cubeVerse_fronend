@@ -1,6 +1,7 @@
 "use client";
 import Navbar from "../components/Navbar";
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 
 export default function page() {
   const [selectrow, setSelectrow] = useState([]);
@@ -28,18 +29,29 @@ export default function page() {
       <main className="min-h-screen px-4 py-10">
         <div className="mx-auto max-w-7xl">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold tracking-tight">
-              PLL Algorithms
-            </h1>
+          <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <h1 className="text-4xl font-bold tracking-tight">
+                PLL Algorithms
+              </h1>
 
-            <p className="mt-3 max-w-2xl leading-7 text-muted">
-              PLL (Permutation of the Last Layer) solves the cube after OLL.
-              This is the last step of the CFOP method.
-            </p>
-            <p className="mt-2 text-sm text-muted">
-              Click a row to add or remove that case from the trainer.
-            </p>
+              <p className="mt-3 max-w-2xl leading-7 text-muted">
+                PLL (Permutation of the Last Layer) solves the cube after OLL.
+                This is the last step of the CFOP method.
+              </p>
+              <p className="mt-2 text-sm text-muted">
+                Click a row to add or remove that case from the trainer.
+              </p>
+            </div>
+
+            <div className="flex gap-2 sm:self-end">
+              <Link
+                href="/beginnerPll"
+                className="rounded-md border-2 border-ink bg-cube-green px-4 py-2 font-semibold text-paper transition hover:brightness-95"
+              >
+                Beginner PLL (6 Cases)
+              </Link>
+            </div>
           </div>
 
           {/* Table */}

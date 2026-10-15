@@ -64,10 +64,10 @@ export default function Timer() {
   const status = running ? "Solving..." : holding ? "Release to start" : "Ready";
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden">
+    <div className="flex min-h-screen flex-col bg-paper">
       <Navbar />
-      <main className="min-h-0 flex-1 px-3 py-2 sm:px-6 sm:py-2.5">
-        <div className="mx-auto flex h-full max-w-6xl flex-col gap-2 sm:gap-2.5">
+      <main className="flex-1 px-3 py-2 sm:px-6 sm:py-4">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3">
           <div className="flex items-center justify-between">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Timer</h1>
             <button

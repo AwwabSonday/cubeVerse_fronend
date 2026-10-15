@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Navbar from "../components/Navbar";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 export default function page() {
   const [selectrow, setSelectrow] = useState([]);
@@ -29,18 +30,29 @@ export default function page() {
       <main className="min-h-screen px-4 py-10">
         <div className="mx-auto max-w-7xl">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold tracking-tight">
-              OLL Algorithms
-            </h1>
+          <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <h1 className="text-4xl font-bold tracking-tight">
+                OLL Algorithms
+              </h1>
 
-            <p className="mt-3 max-w-2xl leading-7 text-muted">
-              OLL (Orientation of the Last Layer) solves the top color of the
-              last layer. This is the 3rd step of the CFOP method.
-            </p>
-            <p className="mt-2 text-sm text-muted">
-              Click a row to add or remove that case from the trainer.
-            </p>
+              <p className="mt-3 max-w-2xl leading-7 text-muted">
+                OLL (Orientation of the Last Layer) solves the top color of the
+                last layer. This is the 3rd step of the CFOP method.
+              </p>
+              <p className="mt-2 text-sm text-muted">
+                Click a row to add or remove that case from the trainer.
+              </p>
+            </div>
+
+            <div className="flex gap-2 sm:self-end">
+              <Link
+                href="/beginnerOll"
+                className="rounded-md border-2 border-ink bg-cube-yellow px-4 py-2 font-semibold text-ink transition hover:brightness-95"
+              >
+                Beginner OLL (10 Cases)
+              </Link>
+            </div>
           </div>
 
           {/* Table */}
