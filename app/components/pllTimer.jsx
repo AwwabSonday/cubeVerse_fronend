@@ -251,7 +251,7 @@ export default function Timer() {
     changeAlgo(newMode);
   };
 
-  const { time, holding, running, resetTime } = useSpaceTimer((finalTime) => {
+  const { time, holding, running, resetTime, handlePointerDown, handlePointerUp } = useSpaceTimer((finalTime) => {
     setCurrentTime(finalTime);
     setSolves((prev) => [...prev, finalTime]);
     setBestTime((prev) => (prev === null || finalTime < prev ? finalTime : prev));
@@ -375,9 +375,16 @@ export default function Timer() {
 
       {/* Main Trainer Grid */}
       <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
-        {/* Timer Hero Card */}
-        <div className="flex min-h-[220px] sm:min-h-[250px] items-center justify-center rounded-xl border-2 border-ink bg-white p-4 sm:p-6 lg:col-span-2">
-          <div className="relative text-center">
+        {/* Timer Hero Card - Supports Keyboard Space & Mobile Touch/Click */}
+        <div
+          onPointerDown={handlePointerDown}
+          onPointerUp={handlePointerUp}
+          role="button"
+          tabIndex={0}
+          aria-label="Speedcubing timer card. Hold to ready, release to start, tap to stop"
+          className="flex min-h-[220px] cursor-pointer select-none touch-none items-center justify-center rounded-xl border-2 border-ink bg-white p-4 transition-colors active:bg-ink/5 sm:min-h-[250px] sm:p-6 lg:col-span-2"
+        >
+          <div className="relative text-center pointer-events-none">
             <span className="inline-block rounded-md border border-ink/30 bg-paper px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-muted sm:text-[11px]">
               {status}
             </span>
@@ -391,12 +398,12 @@ export default function Timer() {
             </p>
 
             <div className="inline-flex items-center gap-2 rounded-lg border border-ink/30 bg-paper px-2.5 py-1 text-[11px] font-medium text-muted sm:text-xs">
-              <kbd className="rounded bg-ink px-1.5 py-0.5 font-mono text-[10px] text-paper">
+              <kbd className="hidden sm:inline-block rounded bg-ink px-1.5 py-0.5 font-mono text-[10px] text-paper">
                 SPACE
               </kbd>
 
               <span>
-                {running ? "Press to stop" : "Hold until green, release to start"}
+                {running ? "Press SPACE or tap card to stop" : "Hold SPACE or touch card, release to start"}
               </span>
             </div>
           </div>

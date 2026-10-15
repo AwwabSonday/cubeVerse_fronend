@@ -1,59 +1,76 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
-// Hold Space -> ready (0.00), release -> runs, press Space again -> stops.
+// Supports both Spacebar (desktop) and Touch / Pointer (mobile/tablet).
 export default function useSpaceTimer(onStop) {
   const [time, setTime] = useState(0);
   const [holding, setHolding] = useState(false);
   const [running, setRunning] = useState(false);
+
   const onStopRef = useRef(onStop);
+  const stateRef = useRef("idle"); // idle | holding | running | stopped
+  const startRef = useRef(0);
+  const rafRef = useRef(0);
 
   useEffect(() => {
     onStopRef.current = onStop;
   });
 
+  const tick = useCallback(() => {
+    setTime((performance.now() - startRef.current) / 1000);
+    rafRef.current = requestAnimationFrame(tick);
+  }, []);
+
+  const triggerStop = useCallback(() => {
+    cancelAnimationFrame(rafRef.current);
+    const final = (performance.now() - startRef.current) / 1000;
+    stateRef.current = "stopped";
+    setRunning(false);
+    setTime(final);
+    if (onStopRef.current) {
+      onStopRef.current(final);
+    }
+  }, []);
+
+  const triggerHold = useCallback(() => {
+    stateRef.current = "holding";
+    setHolding(true);
+    setTime(0);
+  }, []);
+
+  const triggerStart = useCallback(() => {
+    stateRef.current = "running";
+    setHolding(false);
+    setRunning(true);
+    startRef.current = performance.now();
+    rafRef.current = requestAnimationFrame(tick);
+  }, [tick]);
+
+  // Keyboard events (Spacebar)
   useEffect(() => {
-    let state = "idle"; // idle | holding | running | stopped
-    let start = 0;
-    let raf = 0;
-
-    const tick = () => {
-      setTime((performance.now() - start) / 1000);
-      raf = requestAnimationFrame(tick);
-    };
-
     const down = (e) => {
       if (e.code !== "Space") return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
       e.preventDefault();
       if (e.repeat) return;
 
-      if (state === "running") {
-        cancelAnimationFrame(raf);
-        const final = (performance.now() - start) / 1000;
-        state = "stopped";
-        setRunning(false);
-        setTime(final);
-        onStopRef.current(final);
+      if (stateRef.current === "running") {
+        triggerStop();
       } else {
-        state = "holding";
-        setHolding(true);
-        setTime(0);
+        triggerHold();
       }
     };
 
     const up = (e) => {
       if (e.code !== "Space") return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
       e.preventDefault();
 
-      if (state === "holding") {
-        state = "running";
-        setHolding(false);
-        setRunning(true);
-        start = performance.now();
-        raf = requestAnimationFrame(tick);
-      } else if (state !== "running") {
-        state = "idle";
+      if (stateRef.current === "holding") {
+        triggerStart();
+      } else if (stateRef.current !== "running") {
+        stateRef.current = "idle";
       }
     };
 
@@ -62,9 +79,37 @@ export default function useSpaceTimer(onStop) {
     return () => {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(rafRef.current);
     };
-  }, []);
+  }, [triggerStop, triggerHold, triggerStart]);
 
-  return { time, holding, running, resetTime: () => setTime(0) };
+  // Pointer / Touch handlers for mobile & touchscreen devices
+  const handlePointerDown = useCallback((e) => {
+    if (e.target.closest("button") || e.target.closest("a") || e.target.closest("input")) return;
+
+    if (stateRef.current === "running") {
+      triggerStop();
+    } else {
+      triggerHold();
+    }
+  }, [triggerStop, triggerHold]);
+
+  const handlePointerUp = useCallback((e) => {
+    if (e.target.closest("button") || e.target.closest("a") || e.target.closest("input")) return;
+
+    if (stateRef.current === "holding") {
+      triggerStart();
+    } else if (stateRef.current !== "running") {
+      stateRef.current = "idle";
+    }
+  }, [triggerStart]);
+
+  return {
+    time,
+    holding,
+    running,
+    resetTime: () => setTime(0),
+    handlePointerDown,
+    handlePointerUp,
+  };
 }

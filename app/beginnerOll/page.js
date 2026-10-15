@@ -132,9 +132,67 @@ export default function BeginnerOLLPage() {
             </div>
           </div>
 
-          {/* Table */}
+          {/* Cases Display: Mobile Cards (< md) & Desktop Table (>= md) */}
           <div className="overflow-hidden rounded-xl border-2 border-ink bg-white">
-            <div className="overflow-x-auto">
+            {/* Mobile Cards View (< md) */}
+            <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 md:hidden">
+              {cases.map(([name, image, algorithm, group]) => {
+                const isSelected = selectrow.includes(name);
+                return (
+                  <div
+                    key={name}
+                    onClick={() => {
+                      setSelectrow((prev) =>
+                        prev.includes(name)
+                          ? prev.filter((id) => id !== name)
+                          : [...prev, name]
+                      );
+                    }}
+                    className={`cursor-pointer rounded-xl border-2 border-ink p-3 transition-all ${
+                      isSelected
+                        ? "bg-cube-yellow shadow-[4px_4px_0px_0px_rgba(27,26,23,1)]"
+                        : "bg-paper hover:bg-white shadow-[2px_2px_0px_0px_rgba(27,26,23,1)]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between border-b border-ink/15 pb-2 mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-sm text-ink">{name}</span>
+                        <span className="rounded-md border border-ink/30 bg-white px-2 py-0.5 text-[10px] font-bold text-muted">
+                          {group}
+                        </span>
+                      </div>
+                      <span
+                        className={`flex h-5 w-5 items-center justify-center rounded-md border border-ink text-xs font-black transition-colors ${
+                          isSelected ? "bg-ink text-paper" : "bg-white text-transparent"
+                        }`}
+                      >
+                        ✓
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="h-16 w-16 shrink-0 rounded-lg border border-ink/20 bg-white bg-contain bg-center bg-no-repeat p-1"
+                        style={{
+                          backgroundImage: `url("/b_oll/${image}")`,
+                        }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
+                          Algorithm
+                        </span>
+                        <p className="font-mono text-xs font-bold text-ink break-words leading-relaxed mt-0.5">
+                          {algorithm}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table View (>= md) */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full min-w-[750px] border-collapse text-left">
                 <thead>
                   <tr className="bg-ink text-paper">

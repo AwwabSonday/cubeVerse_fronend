@@ -41,7 +41,7 @@ export default function Timer() {
     setAlgo(newScramble());
   }, []);
 
-  const { time, holding, running, resetTime } = useSpaceTimer((finalTime) => {
+  const { time, holding, running, resetTime, handlePointerDown, handlePointerUp } = useSpaceTimer((finalTime) => {
     setCurrentTime(finalTime);
     setHistory((prev) => [finalTime, ...prev]);
     setBestTime((prev) => (prev === null || finalTime < prev ? finalTime : prev));
@@ -66,8 +66,8 @@ export default function Timer() {
   return (
     <div className="flex min-h-screen flex-col bg-paper">
       <Navbar />
-      <main className="flex-1 px-3 py-2 sm:px-6 sm:py-4">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3">
+      <main className="flex-1 px-3 py-3 sm:px-6 sm:py-4">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:gap-4">
           <div className="flex items-center justify-between">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Timer</h1>
             <button
@@ -80,8 +80,8 @@ export default function Timer() {
           </div>
 
           {/* Scramble Display */}
-          <div className="relative overflow-hidden rounded-xl border-2 border-ink bg-white p-2.5 pt-3 sm:p-3 sm:pt-3.5">
-            <div className="absolute left-0 top-0 flex h-1.5 w-full" aria-hidden="true">
+          <div className="relative overflow-hidden rounded-xl border-2 border-ink bg-white p-3 pt-3.5 sm:p-4 sm:pt-4">
+            <div className="absolute left-0 top-0 flex h-1.5 sm:h-2 w-full" aria-hidden="true">
               <span className="flex-1 bg-cube-red" />
               <span className="flex-1 bg-cube-orange" />
               <span className="flex-1 bg-cube-yellow" />
@@ -99,30 +99,37 @@ export default function Timer() {
               </span>
             </div>
 
-            <div className="mt-1 flex items-center justify-between gap-4 rounded-xl border border-ink/30 bg-paper px-3 py-2 sm:px-4 sm:py-2.5">
-              <p className="min-w-0 flex-1 break-words font-mono text-sm sm:text-base md:text-lg font-bold tracking-wide text-ink leading-relaxed">
+            <div className="mt-2 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 rounded-xl border border-ink/30 bg-paper p-3">
+              <p className="min-w-0 flex-1 break-words font-mono text-sm sm:text-base md:text-lg font-bold tracking-wide text-ink leading-relaxed text-center sm:text-left">
                 {algo || "Generating scramble..."}
               </p>
               <div className="shrink-0 flex items-center justify-center">
                 <ScrambleNet
                   scramble={algo}
-                  className="w-36 h-26 sm:w-44 sm:h-32 md:w-48 md:h-34"
+                  className="w-32 h-24 sm:w-40 sm:h-28 md:w-48 md:h-34"
                 />
               </div>
             </div>
           </div>
 
           {/* Main Grid */}
-          <div className="grid min-h-0 flex-1 gap-2 sm:gap-2.5 lg:grid-cols-3 lg:grid-rows-[1fr_auto]">
-            {/* Timer Card */}
-            <div className="flex min-h-0 flex-col items-center justify-center rounded-xl border-2 border-ink bg-white p-3 sm:p-4 lg:col-span-2">
-              <div className="flex flex-col items-center justify-center text-center my-auto">
+          <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
+            {/* Timer Card - Touch & Keyboard Supported */}
+            <div
+              onPointerDown={handlePointerDown}
+              onPointerUp={handlePointerUp}
+              role="button"
+              tabIndex={0}
+              aria-label="Speedcubing timer card. Hold to ready, release to start, tap to stop"
+              className="flex min-h-[220px] cursor-pointer select-none touch-none flex-col items-center justify-center rounded-xl border-2 border-ink bg-white p-4 transition-colors active:bg-ink/5 sm:min-h-[250px] sm:p-6 lg:col-span-2"
+            >
+              <div className="pointer-events-none flex flex-col items-center justify-center text-center my-auto">
                 <span className="inline-block rounded-md border border-ink/30 bg-paper px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-muted">
                   {status}
                 </span>
 
                 <p
-                  className={`my-1 sm:my-2 font-mono text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-none tabular-nums ${
+                  className={`my-2 font-mono text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-none tabular-nums ${
                     holding ? "text-cube-green" : "text-ink"
                   }`}
                 >
@@ -130,8 +137,8 @@ export default function Timer() {
                 </p>
 
                 <div className="inline-flex items-center gap-2 rounded-lg border border-ink/30 bg-paper px-2.5 py-1 text-[11px] sm:text-xs font-medium text-muted">
-                  <kbd className="rounded bg-ink px-1.5 py-0.5 font-mono text-[10px] text-paper">SPACE</kbd>
-                  <span>{running ? "Press to stop" : "Hold until green, release to start"}</span>
+                  <kbd className="hidden sm:inline-block rounded bg-ink px-1.5 py-0.5 font-mono text-[10px] text-paper">SPACE</kbd>
+                  <span>{running ? "Press SPACE or tap card to stop" : "Hold SPACE or touch card, release to start"}</span>
                 </div>
               </div>
             </div>
