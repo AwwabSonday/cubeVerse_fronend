@@ -9,9 +9,11 @@ export default function Navbar() {
   const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState(null); // 'oll' | 'pll' | 'trainers' | null
   const navRef = useRef(null);
+  const timeoutRef = useRef(null);
 
   // Close dropdown on route navigation
   useEffect(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setOpenDropdown(null);
   }, [pathname]);
 
@@ -19,12 +21,31 @@ export default function Navbar() {
   useEffect(() => {
     function handleClickOutside(event) {
       if (navRef.current && !navRef.current.contains(event.target)) {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
         setOpenDropdown(null);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleMouseEnter = (key) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    setOpenDropdown(key);
+  };
+
+  const handleMouseLeave = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    // 200ms grace period so moving down into the list never accidentally collapses it
+    timeoutRef.current = setTimeout(() => {
+      setOpenDropdown(null);
+    }, 200);
+  };
 
   const isOllActive =
     pathname === "/ollAlgorithm" ||
@@ -40,6 +61,7 @@ export default function Navbar() {
     pathname === "/ollTrainer" || pathname === "/pllTrainer";
 
   const toggleDropdown = (key) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setOpenDropdown((prev) => (prev === key ? null : key));
   };
 
@@ -82,8 +104,8 @@ export default function Navbar() {
           {/* OLL Dropdown */}
           <div
             className="relative"
-            onMouseEnter={() => setOpenDropdown("oll")}
-            onMouseLeave={() => setOpenDropdown(null)}
+            onMouseEnter={() => handleMouseEnter("oll")}
+            onMouseLeave={handleMouseLeave}
           >
             <button
               type="button"
@@ -110,41 +132,47 @@ export default function Navbar() {
             </button>
 
             {openDropdown === "oll" && (
-              <div className="absolute left-0 top-full z-50 mt-1.5 w-52 rounded-xl border-2 border-ink bg-white p-1.5 shadow-lg">
-                <Link
-                  href="/beginnerOll"
-                  className={`flex flex-col rounded-lg px-3 py-2 transition ${
-                    pathname === "/beginnerOll" || pathname === "/beginner-oll"
-                      ? "bg-cube-yellow text-ink font-bold"
-                      : "hover:bg-ink/5"
-                  }`}
-                >
-                  <span className="text-xs font-bold sm:text-sm">Beginner OLL</span>
-                  <span className="text-[11px] text-muted font-medium">2-Look (10 Algorithms)</span>
-                </Link>
-                <Link
-                  href="/ollAlgorithm"
-                  className={`flex flex-col rounded-lg px-3 py-2 transition ${
-                    pathname === "/ollAlgorithm"
-                      ? "bg-cube-yellow text-ink font-bold"
-                      : "hover:bg-ink/5"
-                  }`}
-                >
-                  <span className="text-xs font-bold sm:text-sm">Full OLL</span>
-                  <span className="text-[11px] text-muted font-medium">All 57 Cases</span>
-                </Link>
-                <div className="my-1 border-t border-ink/10" />
-                <Link
-                  href="/ollTrainer"
-                  className={`flex flex-col rounded-lg px-3 py-2 transition ${
-                    pathname === "/ollTrainer"
-                      ? "bg-cube-yellow text-ink font-bold"
-                      : "hover:bg-ink/5"
-                  }`}
-                >
-                  <span className="text-xs font-bold sm:text-sm">OLL Trainer</span>
-                  <span className="text-[11px] text-muted font-medium">Timer & Scrambler</span>
-                </Link>
+              <div
+                className="absolute left-0 top-full z-50 pt-2"
+                onMouseEnter={() => handleMouseEnter("oll")}
+                onMouseLeave={handleMouseLeave}
+              >
+                <div className="w-52 rounded-xl border-2 border-ink bg-white p-1.5 shadow-lg before:absolute before:-top-2 before:left-0 before:right-0 before:h-2 before:content-['']">
+                  <Link
+                    href="/beginnerOll"
+                    className={`flex flex-col rounded-lg px-3 py-2 transition ${
+                      pathname === "/beginnerOll" || pathname === "/beginner-oll"
+                        ? "bg-cube-yellow text-ink font-bold"
+                        : "hover:bg-ink/5"
+                    }`}
+                  >
+                    <span className="text-xs font-bold sm:text-sm">Beginner OLL</span>
+                    <span className="text-[11px] text-muted font-medium">2-Look (10 Algorithms)</span>
+                  </Link>
+                  <Link
+                    href="/ollAlgorithm"
+                    className={`flex flex-col rounded-lg px-3 py-2 transition ${
+                      pathname === "/ollAlgorithm"
+                        ? "bg-cube-yellow text-ink font-bold"
+                        : "hover:bg-ink/5"
+                    }`}
+                  >
+                    <span className="text-xs font-bold sm:text-sm">Full OLL</span>
+                    <span className="text-[11px] text-muted font-medium">All 57 Cases</span>
+                  </Link>
+                  <div className="my-1 border-t border-ink/10" />
+                  <Link
+                    href="/ollTrainer"
+                    className={`flex flex-col rounded-lg px-3 py-2 transition ${
+                      pathname === "/ollTrainer"
+                        ? "bg-cube-yellow text-ink font-bold"
+                        : "hover:bg-ink/5"
+                    }`}
+                  >
+                    <span className="text-xs font-bold sm:text-sm">OLL Trainer</span>
+                    <span className="text-[11px] text-muted font-medium">Timer & Scrambler</span>
+                  </Link>
+                </div>
               </div>
             )}
           </div>
@@ -152,8 +180,8 @@ export default function Navbar() {
           {/* PLL Dropdown */}
           <div
             className="relative"
-            onMouseEnter={() => setOpenDropdown("pll")}
-            onMouseLeave={() => setOpenDropdown(null)}
+            onMouseEnter={() => handleMouseEnter("pll")}
+            onMouseLeave={handleMouseLeave}
           >
             <button
               type="button"
@@ -180,41 +208,47 @@ export default function Navbar() {
             </button>
 
             {openDropdown === "pll" && (
-              <div className="absolute left-0 top-full z-50 mt-1.5 w-52 rounded-xl border-2 border-ink bg-white p-1.5 shadow-lg">
-                <Link
-                  href="/beginnerPll"
-                  className={`flex flex-col rounded-lg px-3 py-2 transition ${
-                    pathname === "/beginnerPll" || pathname === "/beginner-pll"
-                      ? "bg-cube-yellow text-ink font-bold"
-                      : "hover:bg-ink/5"
-                  }`}
-                >
-                  <span className="text-xs font-bold sm:text-sm">Beginner PLL</span>
-                  <span className="text-[11px] text-muted font-medium">2-Look (6 Algorithms)</span>
-                </Link>
-                <Link
-                  href="/pllAlgorithm"
-                  className={`flex flex-col rounded-lg px-3 py-2 transition ${
-                    pathname === "/pllAlgorithm"
-                      ? "bg-cube-yellow text-ink font-bold"
-                      : "hover:bg-ink/5"
-                  }`}
-                >
-                  <span className="text-xs font-bold sm:text-sm">Full PLL</span>
-                  <span className="text-[11px] text-muted font-medium">All 21 Cases</span>
-                </Link>
-                <div className="my-1 border-t border-ink/10" />
-                <Link
-                  href="/pllTrainer"
-                  className={`flex flex-col rounded-lg px-3 py-2 transition ${
-                    pathname === "/pllTrainer"
-                      ? "bg-cube-yellow text-ink font-bold"
-                      : "hover:bg-ink/5"
-                  }`}
-                >
-                  <span className="text-xs font-bold sm:text-sm">PLL Trainer</span>
-                  <span className="text-[11px] text-muted font-medium">Timer & Scrambler</span>
-                </Link>
+              <div
+                className="absolute left-0 top-full z-50 pt-2"
+                onMouseEnter={() => handleMouseEnter("pll")}
+                onMouseLeave={handleMouseLeave}
+              >
+                <div className="w-52 rounded-xl border-2 border-ink bg-white p-1.5 shadow-lg before:absolute before:-top-2 before:left-0 before:right-0 before:h-2 before:content-['']">
+                  <Link
+                    href="/beginnerPll"
+                    className={`flex flex-col rounded-lg px-3 py-2 transition ${
+                      pathname === "/beginnerPll" || pathname === "/beginner-pll"
+                        ? "bg-cube-yellow text-ink font-bold"
+                        : "hover:bg-ink/5"
+                    }`}
+                  >
+                    <span className="text-xs font-bold sm:text-sm">Beginner PLL</span>
+                    <span className="text-[11px] text-muted font-medium">2-Look (6 Algorithms)</span>
+                  </Link>
+                  <Link
+                    href="/pllAlgorithm"
+                    className={`flex flex-col rounded-lg px-3 py-2 transition ${
+                      pathname === "/pllAlgorithm"
+                        ? "bg-cube-yellow text-ink font-bold"
+                        : "hover:bg-ink/5"
+                    }`}
+                  >
+                    <span className="text-xs font-bold sm:text-sm">Full PLL</span>
+                    <span className="text-[11px] text-muted font-medium">All 21 Cases</span>
+                  </Link>
+                  <div className="my-1 border-t border-ink/10" />
+                  <Link
+                    href="/pllTrainer"
+                    className={`flex flex-col rounded-lg px-3 py-2 transition ${
+                      pathname === "/pllTrainer"
+                        ? "bg-cube-yellow text-ink font-bold"
+                        : "hover:bg-ink/5"
+                    }`}
+                  >
+                    <span className="text-xs font-bold sm:text-sm">PLL Trainer</span>
+                    <span className="text-[11px] text-muted font-medium">Timer & Scrambler</span>
+                  </Link>
+                </div>
               </div>
             )}
           </div>
@@ -222,8 +256,8 @@ export default function Navbar() {
           {/* Trainers Dropdown */}
           <div
             className="relative"
-            onMouseEnter={() => setOpenDropdown("trainers")}
-            onMouseLeave={() => setOpenDropdown(null)}
+            onMouseEnter={() => handleMouseEnter("trainers")}
+            onMouseLeave={handleMouseLeave}
           >
             <button
               type="button"
@@ -250,29 +284,35 @@ export default function Navbar() {
             </button>
 
             {openDropdown === "trainers" && (
-              <div className="absolute left-0 top-full z-50 mt-1.5 w-48 rounded-xl border-2 border-ink bg-white p-1.5 shadow-lg">
-                <Link
-                  href="/ollTrainer"
-                  className={`flex flex-col rounded-lg px-3 py-2 transition ${
-                    pathname === "/ollTrainer"
-                      ? "bg-cube-yellow text-ink font-bold"
-                      : "hover:bg-ink/5"
-                  }`}
-                >
-                  <span className="text-xs font-bold sm:text-sm">OLL Trainer</span>
-                  <span className="text-[11px] text-muted font-medium">Beginner & Full</span>
-                </Link>
-                <Link
-                  href="/pllTrainer"
-                  className={`flex flex-col rounded-lg px-3 py-2 transition ${
-                    pathname === "/pllTrainer"
-                      ? "bg-cube-yellow text-ink font-bold"
-                      : "hover:bg-ink/5"
-                  }`}
-                >
-                  <span className="text-xs font-bold sm:text-sm">PLL Trainer</span>
-                  <span className="text-[11px] text-muted font-medium">Beginner & Full</span>
-                </Link>
+              <div
+                className="absolute left-0 top-full z-50 pt-2"
+                onMouseEnter={() => handleMouseEnter("trainers")}
+                onMouseLeave={handleMouseLeave}
+              >
+                <div className="w-48 rounded-xl border-2 border-ink bg-white p-1.5 shadow-lg before:absolute before:-top-2 before:left-0 before:right-0 before:h-2 before:content-['']">
+                  <Link
+                    href="/ollTrainer"
+                    className={`flex flex-col rounded-lg px-3 py-2 transition ${
+                      pathname === "/ollTrainer"
+                        ? "bg-cube-yellow text-ink font-bold"
+                        : "hover:bg-ink/5"
+                    }`}
+                  >
+                    <span className="text-xs font-bold sm:text-sm">OLL Trainer</span>
+                    <span className="text-[11px] text-muted font-medium">Beginner & Full</span>
+                  </Link>
+                  <Link
+                    href="/pllTrainer"
+                    className={`flex flex-col rounded-lg px-3 py-2 transition ${
+                      pathname === "/pllTrainer"
+                        ? "bg-cube-yellow text-ink font-bold"
+                        : "hover:bg-ink/5"
+                    }`}
+                  >
+                    <span className="text-xs font-bold sm:text-sm">PLL Trainer</span>
+                    <span className="text-[11px] text-muted font-medium">Beginner & Full</span>
+                  </Link>
+                </div>
               </div>
             )}
           </div>
