@@ -6,17 +6,15 @@ import {
   googleProvider,
   isFirebaseConfigured,
   signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
-  updateProfile,
-  onAuthStateChanged,
 } from "../firebase";
+import { apiLogin, apiRegister, apiGetMe } from "../services/api";
 
 const AuthContext = createContext({
   user: null,
+  token: null,
   loading: true,
-  isConfigured: false,
+  isConfigured: true,
   login: async () => {},
   register: async () => {},
   loginWithGoogle: async () => {},
@@ -26,69 +24,161 @@ const AuthContext = createContext({
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Restore user session on mount
   useEffect(() => {
-    if (!auth) {
-      setLoading(false);
-      return;
+    let isMounted = true;
+
+    async function initSession() {
+      try {
+        const savedToken =
+          typeof window !== "undefined"
+            ? localStorage.getItem("cubeVerse_token")
+            : null;
+
+        if (savedToken) {
+          try {
+            const data = await apiGetMe(savedToken);
+            if (data?.user && isMounted) {
+              setToken(savedToken);
+              setUser({
+                ...data.user,
+                displayName: data.user.username || data.user.displayName,
+                token: savedToken,
+              });
+            }
+          } catch (err) {
+            console.warn("Session restore failed, clearing expired token:", err.message);
+            if (typeof window !== "undefined") {
+              localStorage.removeItem("cubeVerse_token");
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Auth init error:", err);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    initSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Backend login
+  const login = async (email, password) => {
+    try {
+      const data = await apiLogin(email, password);
+      if (data?.token && data?.user) {
+        const formattedUser = {
+          ...data.user,
+          displayName: data.user.username,
+          token: data.token,
+        };
+        setToken(data.token);
+        setUser(formattedUser);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("cubeVerse_token", data.token);
+        }
+        return formattedUser;
+      }
+      throw new Error(data?.message || "Login failed");
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  // Backend register: accepts (email, password, username) or (username, email, password)
+  const register = async (first, second, third) => {
+    let email, password, username;
+
+    if (typeof first === "object" && first !== null) {
+      ({ email, password, username } = first);
+    } else if (third !== undefined) {
+      // Called as register(email, password, username)
+      email = first;
+      password = second;
+      username = third;
+    } else {
+      email = first;
+      password = second;
+      username = first.split("@")[0];
     }
 
     try {
-      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-        setUser(currentUser);
-        setLoading(false);
-      });
-      return () => unsubscribe();
+      const data = await apiRegister(username, email, password);
+      if (data?.token && data?.user) {
+        const formattedUser = {
+          ...data.user,
+          displayName: data.user.username,
+          token: data.token,
+        };
+        setToken(data.token);
+        setUser(formattedUser);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("cubeVerse_token", data.token);
+        }
+        return formattedUser;
+      }
+      throw new Error(data?.message || "Registration failed");
     } catch (err) {
-      console.warn("Auth state listener error:", err.message);
-      setLoading(false);
+      throw err;
     }
-  }, []);
-
-  const login = async (email, password) => {
-    if (!auth) {
-      throw new Error("Firebase is not configured. Please add your Firebase API key in .env.");
-    }
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
   };
 
-  const register = async (email, password, displayName) => {
-    if (!auth) {
-      throw new Error("Firebase is not configured. Please add your Firebase API key in .env.");
-    }
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    if (displayName) {
-      await updateProfile(userCredential.user, { displayName });
-    }
-    return userCredential.user;
-  };
-
+  // Optional Firebase Google Sign-In
   const loginWithGoogle = async () => {
-    if (!auth || !googleProvider) {
-      throw new Error("Firebase is not configured. Please add your Firebase API key in .env.");
+    if (!auth || !googleProvider || !isFirebaseConfigured()) {
+      throw new Error(
+        "Google Sign-In requires Firebase configuration. You can also sign up with Email and Password directly!"
+      );
     }
     const userCredential = await signInWithPopup(auth, googleProvider);
-    return userCredential.user;
+    const fbUser = userCredential.user;
+    setUser(fbUser);
+    return fbUser;
   };
 
   const logout = async () => {
-    if (!auth) return;
-    await firebaseSignOut(auth);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("cubeVerse_token");
+    }
+    setToken(null);
+    setUser(null);
+
+    if (auth && isFirebaseConfigured()) {
+      try {
+        await firebaseSignOut(auth);
+      } catch (_) {}
+    }
   };
 
   const getIdToken = async () => {
-    if (!auth || !auth.currentUser) return null;
-    return await auth.currentUser.getIdToken();
+    if (token) return token;
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("cubeVerse_token");
+      if (saved) return saved;
+    }
+    if (auth && auth.currentUser) {
+      return await auth.currentUser.getIdToken();
+    }
+    return null;
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        token,
         loading,
-        isConfigured: isFirebaseConfigured(),
+        isConfigured: true,
         login,
         register,
         loginWithGoogle,

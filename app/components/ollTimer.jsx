@@ -1,8 +1,9 @@
 "use client";
-
 import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import useSpaceTimer from "./useSpaceTimer";
+import { useAuth } from "../context/AuthContext";
+import { apiGetTimes, apiSaveTime, apiResetTimes } from "../services/api";
 
 // Full 57 OLL scrambles and corresponding images in /oll/
 const fullOllAlgorithms = {
@@ -212,6 +213,7 @@ const normalizeBeginnerKey = (key) => {
 };
 
 export default function Timer() {
+  const { user, token } = useAuth();
   const [trainerMode, setTrainerMode] = useState("full"); // "beginner" | "full"
   const [mounted, setMounted] = useState(false);
 
@@ -228,6 +230,28 @@ export default function Timer() {
   const [currentTime, setCurrentTime] = useState(null);
   const [bestTime, setBestTime] = useState(null);
   const [solves, setSolves] = useState([]);
+
+  // Sync saved times from backend if authenticated
+  useEffect(() => {
+    const activeToken = token || user?.token;
+    if (activeToken) {
+      apiGetTimes("oll", activeToken)
+        .then((data) => {
+          if (data?.success) {
+            if (data.currentTime !== null && data.currentTime !== undefined) {
+              setCurrentTime(Number(data.currentTime));
+            }
+            if (data.bestTime !== null && data.bestTime !== undefined) {
+              setBestTime(Number(data.bestTime));
+            }
+            if (Array.isArray(data.timeLogs) && data.timeLogs.length > 0) {
+              setSolves(data.timeLogs.map((l) => Number(l.time)));
+            }
+          }
+        })
+        .catch(() => {});
+    }
+  }, [user, token]);
 
   // Load saved preferences from localStorage & URL
   useEffect(() => {
@@ -326,10 +350,17 @@ export default function Timer() {
   };
 
   const { time, holding, running, resetTime, handlePointerDown, handlePointerUp } = useSpaceTimer((finalTime) => {
+    const currentScramble = algo;
     setCurrentTime(finalTime);
     setSolves((prev) => [...prev, finalTime]);
     setBestTime((prev) => (prev === null || finalTime < prev ? finalTime : prev));
     changeAlgo();
+
+    const activeToken = token || user?.token;
+    if (activeToken) {
+      apiSaveTime({ time: finalTime, scramble: currentScramble, category: "oll" }, activeToken)
+        .catch((err) => console.warn("Failed to sync OLL time:", err));
+    }
   });
 
   const status = running ? "Solving..." : holding ? "Release to start" : "Ready";
@@ -495,6 +526,10 @@ export default function Timer() {
                 setCurrentTime(null);
                 setSolves([]);
                 resetTime();
+                const activeToken = token || user?.token;
+                if (activeToken) {
+                  apiResetTimes("oll", activeToken).catch(() => {});
+                }
               }}
               title="Reset session"
               aria-label="Reset session"
