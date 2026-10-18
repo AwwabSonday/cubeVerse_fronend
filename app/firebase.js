@@ -1,3 +1,9 @@
+// ====================================================
+// Firebase Configuration (Commented out for now)
+// Authentication and database now use the Express backend.
+// ====================================================
+
+/*
 import { initializeApp, getApps, getApp } from "firebase/app";
 import {
   getAuth,
@@ -19,15 +25,6 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:1234567890:web:abcdef123456",
 };
 
-// Check if valid client-side config is provided
-export const isFirebaseConfigured = () => {
-  return Boolean(
-    process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
-    process.env.NEXT_PUBLIC_FIREBASE_API_KEY !== "AIzaSyPlaceholderKeyForBuildSafety123456"
-  );
-};
-
-// Initialize Firebase safely (supports SSR & Next build prerendering)
 let app = null;
 let auth = null;
 let googleProvider = null;
@@ -41,17 +38,19 @@ if (typeof window !== "undefined" || isFirebaseConfigured()) {
     console.warn("Firebase client initialization deferred:", err.message);
   }
 }
+*/
 
-export {
-  app,
-  auth,
-  googleProvider,
-  signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  updateProfile,
-  onAuthStateChanged,
-};
+// Check if valid client-side config is provided (Disabled for now)
+export const isFirebaseConfigured = () => false;
+
+export const app = null;
+export const auth = null;
+export const googleProvider = null;
+export const signInWithPopup = null;
+export const signInWithEmailAndPassword = null;
+export const createUserWithEmailAndPassword = null;
+export const signOut = null;
+export const updateProfile = null;
+export const onAuthStateChanged = null;
 
 export default app;

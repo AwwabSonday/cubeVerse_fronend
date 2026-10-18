@@ -1,13 +1,14 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import {
-  auth,
-  googleProvider,
-  isFirebaseConfigured,
-  signInWithPopup,
-  signOut as firebaseSignOut,
-} from "../firebase";
+// Firebase imports commented out for now - using backend authentication
+// import {
+//   auth,
+//   googleProvider,
+//   isFirebaseConfigured,
+//   signInWithPopup,
+//   signOut as firebaseSignOut,
+// } from "../firebase";
 import { apiLogin, apiRegister, apiGetMe } from "../services/api";
 
 const AuthContext = createContext({
@@ -133,8 +134,9 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Optional Firebase Google Sign-In
+  // Firebase Google Sign-In (Commented out for now)
   const loginWithGoogle = async () => {
+    /*
     if (!auth || !googleProvider || !isFirebaseConfigured()) {
       throw new Error(
         "Google Sign-In requires Firebase configuration. You can also sign up with Email and Password directly!"
@@ -144,6 +146,10 @@ export function AuthProvider({ children }) {
     const fbUser = userCredential.user;
     setUser(fbUser);
     return fbUser;
+    */
+    throw new Error(
+      "Firebase Google Sign-In is temporarily disabled. Please log in or register with email and password."
+    );
   };
 
   const logout = async () => {
@@ -153,11 +159,14 @@ export function AuthProvider({ children }) {
     setToken(null);
     setUser(null);
 
+    // Firebase signout commented out for now
+    /*
     if (auth && isFirebaseConfigured()) {
       try {
         await firebaseSignOut(auth);
       } catch (_) {}
     }
+    */
   };
 
   const getIdToken = async () => {
@@ -166,9 +175,12 @@ export function AuthProvider({ children }) {
       const saved = localStorage.getItem("cubeVerse_token");
       if (saved) return saved;
     }
+    // Firebase getIdToken commented out for now
+    /*
     if (auth && auth.currentUser) {
       return await auth.currentUser.getIdToken();
     }
+    */
     return null;
   };
 

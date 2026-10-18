@@ -75,7 +75,8 @@ export default function LoginPage() {
         </div>
       )}
 
-      {/* Google Sign-In Button */}
+      {/* Firebase Google Sign-In Button (Commented out for now) */}
+      {/*
       <button
         type="button"
         onClick={handleGoogleSignIn}
@@ -109,6 +110,7 @@ export default function LoginPage() {
           Or with email
         </span>
       </div>
+      */}
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>

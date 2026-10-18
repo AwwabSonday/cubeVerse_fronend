@@ -85,7 +85,8 @@ export default function RegisterPage() {
         </div>
       )}
 
-      {/* Google Sign-In Button */}
+      {/* Firebase Google Sign-In Button (Commented out for now) */}
+      {/*
       <button
         type="button"
         onClick={handleGoogleSignIn}
@@ -119,6 +120,7 @@ export default function RegisterPage() {
           Or with email
         </span>
       </div>
+      */}
 
       <form onSubmit={handleSubmit} className="space-y-2.5">
         <div>
