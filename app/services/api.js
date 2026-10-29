@@ -14,7 +14,12 @@ async function request(endpoint, options = {}) {
     headers,
   };
 
-  const response = await fetch(url, config);
+  let response;
+  try {
+    response = await fetch(url, config);
+  } catch {
+    throw new Error("Can't reach the server. Check that the backend is running and try again.");
+  }
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
@@ -41,6 +46,20 @@ export async function apiLogin(email, password) {
   return request("/api/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
+  });
+}
+
+export async function apiForgotPassword(email) {
+  return request("/api/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function apiResetPassword(token, newPassword) {
+  return request("/api/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, newPassword }),
   });
 }
 
