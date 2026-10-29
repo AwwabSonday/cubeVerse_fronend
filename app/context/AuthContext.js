@@ -1,24 +1,16 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import {
-  auth,
-  googleProvider,
-  isFirebaseConfigured,
-  signInWithPopup,
-  signOut as firebaseSignOut,
-} from "../firebase";
-import { apiLogin, apiRegister, apiGetMe } from "../services/api";
+import { apiLogin, apiRegister, apiGetMe, apiChangePassword } from "../services/api";
 
 const AuthContext = createContext({
   user: null,
   token: null,
   loading: true,
-  isConfigured: true,
   login: async () => {},
   register: async () => {},
-  loginWithGoogle: async () => {},
   logout: async () => {},
+  changePassword: async () => {},
   getIdToken: async () => null,
 });
 
@@ -133,17 +125,13 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Optional Firebase Google Sign-In
-  const loginWithGoogle = async () => {
-    if (!auth || !googleProvider || !isFirebaseConfigured()) {
-      throw new Error(
-        "Google Sign-In requires Firebase configuration. You can also sign up with Email and Password directly!"
-      );
-    }
-    const userCredential = await signInWithPopup(auth, googleProvider);
-    const fbUser = userCredential.user;
-    setUser(fbUser);
-    return fbUser;
+  // Server revokes older tokens on change, so swap in the fresh one it returns
+  const changePassword = async (currentPassword, newPassword) => {
+    const data = await apiChangePassword(currentPassword, newPassword, await getIdToken());
+    if (!data?.token) throw new Error(data?.message || "Could not change password");
+    localStorage.setItem("cubeVerse_token", data.token);
+    setToken(data.token);
+    setUser((u) => ({ ...u, token: data.token }));
   };
 
   const logout = async () => {
@@ -152,12 +140,6 @@ export function AuthProvider({ children }) {
     }
     setToken(null);
     setUser(null);
-
-    if (auth && isFirebaseConfigured()) {
-      try {
-        await firebaseSignOut(auth);
-      } catch (_) {}
-    }
   };
 
   const getIdToken = async () => {
@@ -165,9 +147,6 @@ export function AuthProvider({ children }) {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("cubeVerse_token");
       if (saved) return saved;
-    }
-    if (auth && auth.currentUser) {
-      return await auth.currentUser.getIdToken();
     }
     return null;
   };
@@ -178,11 +157,10 @@ export function AuthProvider({ children }) {
         user,
         token,
         loading,
-        isConfigured: true,
         login,
         register,
-        loginWithGoogle,
         logout,
+        changePassword,
         getIdToken,
       }}
     >

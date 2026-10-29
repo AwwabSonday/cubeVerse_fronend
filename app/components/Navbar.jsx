@@ -476,6 +476,14 @@ export default function Navbar() {
                       <span className="flex h-6 w-6 items-center justify-center rounded-md border border-ink/20 bg-paper text-xs">⚡</span>
                       <span>OLL Trainer</span>
                     </Link>
+                    <Link
+                      href="/account"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-ink transition hover:bg-ink/5"
+                    >
+                      <span className="flex h-6 w-6 items-center justify-center rounded-md border border-ink/20 bg-paper text-xs">🔒</span>
+                      <span>Change password</span>
+                    </Link>
                   </div>
 
                   <div className="my-2 border-t-2 border-ink/10" />

@@ -5,12 +5,12 @@ import Timer from "../components/pllTimer.jsx";
 
 export default function page() {
   return (
-    <div className="flex min-h-screen flex-col bg-paper">
+    <div className="flex h-dvh flex-col overflow-hidden bg-paper">
       <Navbar />
-      <main className="flex-1 px-4 py-4 sm:px-6 sm:py-6">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-            <h1 className="text-3xl font-bold tracking-tight">PLL Trainer</h1>
+      <main className="flex min-h-0 flex-1 flex-col px-3 py-3 sm:px-6">
+        <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-3">
+          <div className="flex shrink-0 flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h1 className="text-xl font-bold tracking-tight sm:text-2xl">PLL Trainer</h1>
             <div className="flex items-center gap-3 text-sm font-semibold">
               <Link
                 href="/beginnerPll"

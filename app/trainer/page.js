@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import ScrambleNet from "../components/ScrambleNet";
+import TimerShell from "../components/TimerShell";
 import useSpaceTimer from "../components/useSpaceTimer";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -202,37 +203,20 @@ export default function Timer() {
     }
   };
 
-  const rawTimes = history
-    .map((item) =>
-      typeof item === "object" ? Number(item.time) : Number(item)
-    )
-    .filter((t) => !isNaN(t) && t > 0);
-
-  const average =
-    rawTimes.length > 0
-      ? rawTimes.reduce((total, value) => total + value, 0) / rawTimes.length
-      : 0;
-
-  const status = running
-    ? "Solving..."
-    : holding
-    ? "Release to start"
-    : "Ready";
+  const times = history.map((item) => Number(item.time)).filter((t) => !isNaN(t) && t > 0);
 
   return (
-    <div className="flex min-h-screen flex-col bg-paper">
+    <div className="flex h-dvh flex-col overflow-hidden bg-paper">
       <Navbar />
-      <main className="flex-1 px-3 py-3 sm:px-6 sm:py-4">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
-                Timer
-              </h1>
+      <main className="flex min-h-0 flex-1 flex-col px-3 py-3 sm:px-6">
+        <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-3">
+          <div className="flex shrink-0 items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Timer</h1>
               {user ? (
-                <span className="inline-flex items-center gap-1 rounded-full border border-cube-green bg-cube-green/10 px-2 py-0.5 text-[11px] font-bold text-cube-green">
-                  <span className="h-1.5 w-1.5 rounded-full bg-cube-green animate-pulse" />
-                  Synced ({user.username || user.displayName || "Account"})
+                <span className="inline-flex min-w-0 items-center gap-1 rounded-full border border-cube-green bg-cube-green/10 px-2 py-0.5 text-[11px] font-bold text-cube-green">
+                  <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-cube-green" />
+                  <span className="truncate">Synced ({user.username || user.displayName || "Account"})</span>
                 </span>
               ) : (
                 <Link
@@ -245,194 +229,37 @@ export default function Timer() {
             </div>
 
             <button
+              type="button"
               onClick={() => setAlgo(newScramble())}
-              className="rounded-md border border-ink/30 bg-paper px-2.5 py-1 text-xs font-semibold hover:border-ink transition"
-              title="Next scramble"
+              className="min-h-8 shrink-0 rounded-md border border-ink/30 bg-paper px-2.5 py-1 text-xs font-semibold transition hover:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
             >
               New Scramble
             </button>
           </div>
 
-          {/* Scramble Display */}
-          <div className="relative overflow-hidden rounded-xl border-2 border-ink bg-white p-3 pt-3.5 sm:p-4 sm:pt-4">
-            <div
-              className="absolute left-0 top-0 flex h-1.5 sm:h-2 w-full"
-              aria-hidden="true"
-            >
-              <span className="flex-1 bg-cube-red" />
-              <span className="flex-1 bg-cube-orange" />
-              <span className="flex-1 bg-cube-yellow" />
-              <span className="flex-1 bg-cube-green" />
-              <span className="flex-1 bg-cube-blue" />
-              <span className="flex-1 bg-paper" />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-ink">
-                Scramble
-              </span>
-              <span className="text-[10px] font-medium tracking-wider text-muted">
-                3x3 WCA
-              </span>
-            </div>
-
-            <div className="mt-2 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 rounded-xl border border-ink/30 bg-paper p-3">
-              <p className="min-w-0 flex-1 break-words font-mono text-sm sm:text-base md:text-lg font-bold tracking-wide text-ink leading-relaxed text-center sm:left">
-                {algo || "Generating scramble..."}
-              </p>
-              <div className="shrink-0 flex items-center justify-center">
-                <ScrambleNet
-                  scramble={algo}
-                  className="w-32 h-24 sm:w-40 sm:h-28 md:w-48 md:h-34"
-                />
+          <TimerShell
+            scrambleMeta={<span className="ml-auto text-[10px] font-medium tracking-wider text-muted">3x3 WCA</span>}
+            scramble={algo || "Generating scramble..."}
+            scrambleVisual={
+              <div className="shrink-0">
+                <ScrambleNet scramble={algo} className="h-16 w-24 sm:h-20 sm:w-32" />
               </div>
-            </div>
-          </div>
-
-          {/* Main Grid */}
-          <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
-            {/* Timer Card - Touch & Keyboard Supported */}
-            <div
-              onPointerDown={handlePointerDown}
-              onPointerUp={handlePointerUp}
-              role="button"
-              tabIndex={0}
-              aria-label="Speedcubing timer card. Hold to ready, release to start, tap to stop"
-              className="flex min-h-[220px] cursor-pointer select-none touch-none flex-col items-center justify-center rounded-xl border-2 border-ink bg-white p-4 transition-colors active:bg-ink/5 sm:min-h-[250px] sm:p-6 lg:col-span-2"
-            >
-              <div className="pointer-events-none flex flex-col items-center justify-center text-center my-auto">
-                <span className="inline-block rounded-md border border-ink/30 bg-paper px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-muted">
-                  {status}
-                </span>
-
-                <p
-                  className={`my-2 font-mono text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight leading-none tabular-nums ${
-                    holding ? "text-cube-green" : "text-ink"
-                  }`}
-                >
-                  {time.toFixed(2)}
-                </p>
-
-                <div className="inline-flex items-center gap-2 rounded-lg border border-ink/30 bg-paper px-2.5 py-1 text-[11px] sm:text-xs font-medium text-muted">
-                  <kbd className="hidden sm:inline-block rounded bg-ink px-1.5 py-0.5 font-mono text-[10px] text-paper">
-                    SPACE
-                  </kbd>
-                  <span>
-                    {running
-                      ? "Press SPACE or tap card to stop"
-                      : "Hold SPACE or touch card, release to start"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Statistics Card */}
-            <div className="flex min-h-0 flex-col justify-between rounded-xl border-2 border-ink bg-white p-3 sm:p-3.5">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-ink">
-                  Statistics
-                </h2>
-                <button
-                  onClick={handleReset}
-                  title="Reset session"
-                  aria-label="Reset session"
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-ink/30 bg-paper text-xs text-muted transition-colors hover:border-cube-red hover:text-cube-red"
-                >
-                  ↻
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 gap-1.5 sm:gap-2 my-auto py-1">
-                <div className="flex flex-col items-center justify-center rounded-lg border border-ink/30 bg-paper py-1 sm:py-1.5 px-2 text-center">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
-                    Current
-                  </span>
-                  <span className="font-mono text-sm sm:text-base md:text-lg font-extrabold text-ink leading-tight">
-                    {currentTime !== null ? currentTime.toFixed(2) : "--"}
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center justify-center rounded-lg border-2 border-ink bg-cube-yellow py-1 sm:py-1.5 px-2 text-center shadow-sm">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-ink">
-                    Best
-                  </span>
-                  <span className="font-mono text-sm sm:text-base md:text-lg font-extrabold text-ink leading-tight">
-                    {bestTime !== null ? bestTime.toFixed(2) : "--"}
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center justify-center rounded-lg border border-ink/30 bg-paper py-1 sm:py-1.5 px-2 text-center">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
-                    Solves
-                  </span>
-                  <span className="font-mono text-sm sm:text-base md:text-lg font-extrabold text-ink leading-tight">
-                    {history.length}
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center justify-center rounded-lg border border-ink/30 bg-paper py-1 sm:py-1.5 px-2 text-center">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
-                    Average
-                  </span>
-                  <span className="font-mono text-sm sm:text-base md:text-lg font-extrabold text-ink leading-tight">
-                    {history.length > 0 ? average.toFixed(2) : "--"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* History Logs */}
-            <div className="flex min-h-0 flex-col rounded-xl border-2 border-ink bg-white p-2.5 sm:p-3 lg:col-span-3">
-              <div className="mb-1.5 flex items-center justify-between">
-                <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider">
-                  Solve History
-                </h2>
-                <span className="text-xs font-medium text-muted">
-                  {history.length} recorded
-                </span>
-              </div>
-
-              <div className="h-14 sm:h-16 overflow-y-auto rounded-lg border border-ink/30 bg-paper p-2">
-                {history.length === 0 ? (
-                  <div className="flex h-full items-center justify-center">
-                    <p className="text-xs font-medium text-muted">
-                      No solves recorded yet. Start solving to build history.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                    {history.map((solve, index) => {
-                      const solveTime =
-                        typeof solve === "object"
-                          ? Number(solve.time)
-                          : Number(solve);
-                      return (
-                        <div
-                          key={solve.id || index}
-                          className="flex items-center justify-between rounded-md border border-ink/30 bg-white px-2.5 py-1 font-mono text-xs hover:border-ink"
-                        >
-                          <span className="font-sans text-[10px] text-muted">
-                            #{history.length - index}
-                          </span>
-                          <span className="font-bold">
-                            {!isNaN(solveTime) ? `${solveTime.toFixed(2)}s` : "--"}
-                          </span>
-                          <button
-                            onClick={() => deleteSolve(index)}
-                            className="ml-1.5 text-muted transition-colors hover:text-cube-red"
-                            title="Delete solve"
-                            aria-label="Delete solve"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+            }
+            time={time}
+            holding={holding}
+            running={running}
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            stats={{
+              current: currentTime,
+              best: bestTime,
+              count: history.length,
+              average: times.length > 0 ? times.reduce((a, b) => a + b, 0) / times.length : null,
+            }}
+            history={history}
+            onReset={handleReset}
+            onDelete={deleteSolve}
+          />
         </div>
       </main>
     </div>

@@ -53,6 +53,16 @@ export async function apiGetMe(token) {
   });
 }
 
+export async function apiChangePassword(currentPassword, newPassword, token) {
+  return request("/api/auth/password", {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+}
+
 // Times / Statistics API endpoints
 export async function apiGetTimes(category = "3x3", token) {
   const query = category ? `?category=${encodeURIComponent(category)}` : "";

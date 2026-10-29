@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import useSpaceTimer from "./useSpaceTimer";
+import TimerShell from "./TimerShell";
 import { useAuth } from "../context/AuthContext";
 import { apiGetTimes, apiSaveTime, apiResetTimes } from "../services/api";
 
@@ -245,7 +246,7 @@ export default function Timer() {
               setBestTime(Number(data.bestTime));
             }
             if (Array.isArray(data.timeLogs) && data.timeLogs.length > 0) {
-              setSolves(data.timeLogs.map((l) => Number(l.time)));
+              setSolves(data.timeLogs.map((l) => Number(l.time)).reverse());
             }
           }
         })
@@ -363,263 +364,102 @@ export default function Timer() {
     }
   });
 
-  const status = running ? "Solving..." : holding ? "Release to start" : "Ready";
+  const history = solves.map((t) => ({ time: t })).reverse();
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4">
-      {/* Mode Switcher Banner */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-ink bg-white px-4 py-2.5 shadow-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-muted">
-            Mode:
-          </span>
+    <TimerShell
+      modeBar={
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-xl border-2 border-ink bg-white px-3 py-2">
           <div className="inline-flex rounded-lg border-2 border-ink bg-paper p-0.5">
-            <button
-              type="button"
-              onClick={() => handleSwitchMode("beginner")}
-              className={`rounded-md px-3 py-1 text-xs font-bold transition ${
-                trainerMode === "beginner"
-                  ? "bg-cube-yellow text-ink shadow-sm"
-                  : "text-muted hover:text-ink"
-              }`}
-            >
-              Beginner OLL ({beginnerSelected.length > 0 ? `${beginnerSelected.length} selected` : "All 10"})
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSwitchMode("full")}
-              className={`rounded-md px-3 py-1 text-xs font-bold transition ${
-                trainerMode === "full"
-                  ? "bg-cube-yellow text-ink shadow-sm"
-                  : "text-muted hover:text-ink"
-              }`}
-            >
-              Full OLL ({fullSelected.length > 0 ? `${fullSelected.length} selected` : "All 57"})
-            </button>
+            {[
+              ["beginner", `Beginner OLL (${beginnerSelected.length > 0 ? `${beginnerSelected.length} selected` : "All 10"})`],
+              ["full", `Full OLL (${fullSelected.length > 0 ? `${fullSelected.length} selected` : "All 57"})`],
+            ].map(([mode, label]) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => handleSwitchMode(mode)}
+                aria-pressed={trainerMode === mode}
+                className={`min-h-8 rounded-md px-3 py-1 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink ${
+                  trainerMode === mode ? "bg-cube-yellow text-ink shadow-sm" : "text-muted hover:text-ink"
+                }`}
+              >
+                <span className="sm:hidden">{label.split(" (")[0]}</span>
+                <span className="hidden sm:inline">{label}</span>
+              </button>
+            ))}
           </div>
-        </div>
 
-        <div className="flex items-center gap-2 text-xs">
           {caseAlgorithm && (
             <button
               type="button"
               onClick={() => setShowAlgoHint((prev) => !prev)}
-              className="rounded-md border border-ink/40 bg-paper px-2.5 py-1 font-semibold text-ink transition hover:bg-ink hover:text-paper"
+              className="min-h-8 rounded-md border border-ink/40 bg-paper px-2.5 py-1 text-xs font-semibold text-ink transition hover:bg-ink hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
             >
               {showAlgoHint ? "Hide Algorithm" : "Show Algorithm"}
             </button>
           )}
         </div>
-      </div>
-
-      {/* Scramble Display */}
-      <div className="relative overflow-hidden rounded-xl border-2 border-ink bg-white p-4 pt-5">
-        <div className="absolute left-0 top-0 flex h-2 w-full" aria-hidden="true">
-          <span className="flex-1 bg-cube-red" />
-          <span className="flex-1 bg-cube-orange" />
-          <span className="flex-1 bg-cube-yellow" />
-          <span className="flex-1 bg-cube-green" />
-          <span className="flex-1 bg-cube-blue" />
-          <span className="flex-1 bg-paper" />
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-ink">
-              Scramble
+      }
+      scrambleMeta={
+        <>
+          {caseLabel && (
+            <span className="rounded-md border border-ink bg-cube-yellow px-2 py-0.5 font-bold text-ink">
+              {caseLabel}
             </span>
-            {caseLabel && (
-              <span className="rounded-md border border-ink bg-cube-yellow px-2 py-0.5 text-xs font-bold text-ink">
-                {caseLabel}
-              </span>
-            )}
-            {caseGroup && (
-              <span className="rounded-md border border-ink/20 bg-paper px-2 py-0.5 text-[11px] font-semibold text-muted">
-                {caseGroup}
-              </span>
-            )}
-          </div>
-
-          <span className="text-[11px] font-medium tracking-wider text-muted">
-            3x3 WCA
-          </span>
-        </div>
-
-        <div className="mt-2 flex items-center justify-between gap-4 rounded-xl border border-ink/30 bg-paper p-3">
-          <div className="min-w-0 flex-1">
-            <p className="break-words font-mono text-base font-bold tracking-wide text-ink sm:text-lg md:text-xl">
-              {mounted ? algo : "Generating scramble..."}
-            </p>
-
-            {showAlgoHint && caseAlgorithm && (
-              <div className="mt-2 rounded-lg border border-ink/20 bg-white p-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
-                  Solution:{" "}
-                </span>
-                <span className="font-mono text-sm font-semibold text-ink">
-                  {caseAlgorithm}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {mounted && currentImage && (
-            <div className="flex shrink-0 items-center justify-center rounded-md border-2 border-ink bg-white p-2">
-              <Image
-                src={currentImage}
-                width={64}
-                height={64}
-                alt="OLL Case Diagram"
-                className="h-16 w-16 object-contain"
-                priority
-              />
-            </div>
           )}
-        </div>
-      </div>
-
-      {/* Main Trainer Grid */}
-      <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
-        {/* Timer Hero Card - Supports Keyboard Space & Mobile Touch/Click */}
-        <div
-          onPointerDown={handlePointerDown}
-          onPointerUp={handlePointerUp}
-          role="button"
-          tabIndex={0}
-          aria-label="Speedcubing timer card. Hold to ready, release to start, tap to stop"
-          className="flex min-h-[220px] cursor-pointer select-none touch-none items-center justify-center rounded-xl border-2 border-ink bg-white p-4 transition-colors active:bg-ink/5 sm:min-h-[250px] sm:p-6 lg:col-span-2"
-        >
-          <div className="relative text-center pointer-events-none">
-            <span className="inline-block rounded-md border border-ink/30 bg-paper px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-muted sm:text-[11px]">
-              {status}
+          {caseGroup && (
+            <span className="rounded-md border border-ink/20 bg-paper px-2 py-0.5 text-[11px] font-semibold text-muted">
+              {caseGroup}
             </span>
-
-            <p
-              className={`my-2 font-mono text-6xl font-black leading-none tracking-tight tabular-nums sm:text-7xl md:text-8xl ${
-                holding ? "text-cube-green" : "text-ink"
-              }`}
-            >
-              {time.toFixed(2)}
-            </p>
-
-            <div className="inline-flex items-center gap-2 rounded-lg border border-ink/30 bg-paper px-2.5 py-1 text-[11px] font-medium text-muted sm:text-xs">
-              <kbd className="hidden sm:inline-block rounded bg-ink px-1.5 py-0.5 font-mono text-[10px] text-paper">
-                SPACE
-              </kbd>
-
-              <span>
-                {running ? "Press SPACE or tap card to stop" : "Hold SPACE or touch card, release to start"}
-              </span>
-            </div>
+          )}
+        </>
+      }
+      scramble={mounted ? algo : "Generating scramble..."}
+      scrambleExtra={
+        showAlgoHint && caseAlgorithm && (
+          <div className="mt-2 rounded-lg border border-ink/20 bg-paper p-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted">Solution: </span>
+            <span className="font-mono text-sm font-semibold text-ink">{caseAlgorithm}</span>
           </div>
-        </div>
-
-        {/* Statistics Card */}
-        <div className="flex min-h-[220px] sm:min-h-[250px] flex-col justify-between rounded-xl border-2 border-ink bg-white p-3.5 sm:p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-ink sm:text-sm">
-              Statistics
-            </h2>
-            <button
-              onClick={() => {
-                setBestTime(null);
-                setCurrentTime(null);
-                setSolves([]);
-                resetTime();
-                const activeToken = token || user?.token;
-                if (activeToken) {
-                  apiResetTimes("oll", activeToken).catch(() => {});
-                }
-              }}
-              title="Reset session"
-              aria-label="Reset session"
-              className="flex h-7 w-7 items-center justify-center rounded-lg border border-ink/30 bg-paper text-xs text-muted transition-colors hover:border-cube-red hover:text-cube-red"
-            >
-              ↻
-            </button>
+        )
+      }
+      scrambleVisual={
+        mounted && currentImage && (
+          <div className="flex shrink-0 items-center justify-center rounded-md border-2 border-ink bg-white p-1.5">
+            <Image
+              src={currentImage}
+              width={64}
+              height={64}
+              alt="OLL case diagram"
+              className="h-14 w-14 object-contain sm:h-16 sm:w-16"
+              priority
+            />
           </div>
-
-          <div className="my-auto grid grid-cols-2 gap-2">
-            <div className="flex flex-col items-center justify-center rounded-lg border border-ink/30 bg-paper px-2 py-2 text-center">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
-                Current
-              </span>
-              <span className="font-mono text-sm font-extrabold leading-tight text-ink sm:text-base md:text-lg">
-                {currentTime !== null ? currentTime.toFixed(2) : "--"}
-              </span>
-            </div>
-
-            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-ink bg-cube-yellow px-2 py-2 text-center shadow-sm">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-ink">
-                Best
-              </span>
-              <span className="font-mono text-sm font-extrabold leading-tight text-ink sm:text-base md:text-lg">
-                {bestTime !== null ? bestTime.toFixed(2) : "--"}
-              </span>
-            </div>
-
-            <div className="flex flex-col items-center justify-center rounded-lg border border-ink/30 bg-paper px-2 py-2 text-center">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
-                Solves
-              </span>
-              <span className="font-mono text-sm font-extrabold leading-tight text-ink sm:text-base md:text-lg">
-                {solves.length}
-              </span>
-            </div>
-
-            <div className="flex flex-col items-center justify-center rounded-lg border border-ink/30 bg-paper px-2 py-2 text-center">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
-                Average
-              </span>
-              <span className="font-mono text-sm font-extrabold leading-tight text-ink sm:text-base md:text-lg">
-                {solves.length > 0
-                  ? (solves.reduce((a, b) => a + b, 0) / solves.length).toFixed(2)
-                  : "--"}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Solve Logs */}
-        <div className="flex flex-col rounded-xl border-2 border-ink bg-white p-3 sm:p-4 lg:col-span-3">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-ink sm:text-sm">
-              Solve History
-            </h3>
-
-            <span className="text-xs font-medium text-muted">
-              {solves.length} recorded
-            </span>
-          </div>
-
-          <div className="max-h-36 min-h-20 overflow-y-auto rounded-lg border border-ink/30 bg-paper p-2">
-            {solves.length === 0 ? (
-              <div className="flex h-16 items-center justify-center">
-                <p className="text-xs font-medium text-muted">
-                  No solves completed in this session
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                {solves.map((solve, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between rounded-lg border border-ink/30 bg-paper px-3 py-2 font-mono text-xs hover:border-ink"
-                  >
-                    <span className="font-sans text-[10px] text-muted">
-                      #{index + 1}
-                    </span>
-
-                    <span className="font-bold text-ink">
-                      {solve.toFixed(2)}s
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+        )
+      }
+      time={time}
+      holding={holding}
+      running={running}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      stats={{
+        current: currentTime,
+        best: bestTime,
+        count: solves.length,
+        average: solves.length > 0 ? solves.reduce((a, b) => a + b, 0) / solves.length : null,
+      }}
+      history={history}
+      onReset={() => {
+        setBestTime(null);
+        setCurrentTime(null);
+        setSolves([]);
+        resetTime();
+        const activeToken = token || user?.token;
+        if (activeToken) {
+          apiResetTimes("oll", activeToken).catch(() => {});
+        }
+      }}
+    />
   );
 }
