@@ -45,10 +45,15 @@ function newScramble(length = 20) {
 
 export default function Timer() {
   const { user, token } = useAuth();
-  const [algo, setAlgo] = useState(newScramble);
+  // Random, so it must be generated after mount; rendering it on the server causes a hydration mismatch
+  const [algo, setAlgo] = useState("");
   const [currentTime, setCurrentTime] = useState(null);
   const [bestTime, setBestTime] = useState(null);
   const [history, setHistory] = useState([]); // array of { id, time, scramble, createdAt }
+
+  useEffect(() => {
+    setAlgo(newScramble());
+  }, []);
 
   // Keep a ref of algo for async callbacks
   const algoRef = useRef(algo);
